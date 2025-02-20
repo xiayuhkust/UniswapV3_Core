@@ -1,0 +1,20 @@
+export const FACTORY_ADDRESS = '0x511CE2380a70bE66FAf44a5baaBf11E92D654905'
+export const SWAP_ROUTER_ADDRESS = '0xB492Bf5FBfA79364149CC76B77b8bd78BecD1416'
+export const NFT_POSITION_MANAGER_ADDRESS = '0x6Ba55510435288424053d8924450Bb1269fD3BD2'
+export const WETH9_ADDRESS = '0xF0e8a104Cc6ecC7bBa4Dc89473d1C64593eA69be'
+
+// Chain configuration
+export const CHAIN_IDS = {
+  MAINNET: 1,
+  TURA: 1337
+} as const
+
+// Network specific addresses
+export const NETWORK_ADDRESSES = {
+  [CHAIN_IDS.TURA]: {
+    factory: FACTORY_ADDRESS,
+    router: SWAP_ROUTER_ADDRESS,
+    nftManager: NFT_POSITION_MANAGER_ADDRESS,
+    weth9: WETH9_ADDRESS
+  }
+} as const
