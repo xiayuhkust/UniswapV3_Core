@@ -44,8 +44,6 @@ contract ConstantProductPoolTest is Test {
         vm.startPrank(user);
         uint256 amountIn = 1 ether;
         token0.transfer(address(pool), amountIn);
-        
-        uint256 expectedOut = pool.getOutputAmount(amountIn, 100 ether, 100 ether);
         pool.swap(amountIn, 0, user);
 
         (uint256 reserve0, uint256 reserve1) = pool.getReserves();
@@ -54,11 +52,13 @@ contract ConstantProductPoolTest is Test {
         vm.stopPrank();
     }
 
-    function testFailZeroInput() public {
+    function test_RevertWhen_ZeroInput() public {
+        vm.expectRevert("CP: INSUFFICIENT_INPUT_AMOUNT");
         pool.swap(0, 0, user);
     }
 
-    function testFailInsufficientLiquidity() public {
+    function test_RevertWhen_InsufficientLiquidity() public {
+        vm.expectRevert("CP: INSUFFICIENT_LIQUIDITY");
         pool.swap(1000000 ether, 0, user);
     }
 }
