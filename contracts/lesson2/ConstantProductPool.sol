@@ -78,13 +78,15 @@ contract ConstantProductPool {
         balance1 = IERC20(token1).balanceOf(address(this));
 
         _update(balance0, balance1);
+
+        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
     function getOutputAmount(
         uint256 amountIn,
         uint256 reserveIn,
         uint256 reserveOut
-    ) internal pure returns (uint256) {
+    ) public pure returns (uint256) {
         require(amountIn > 0, "CP: INSUFFICIENT_INPUT_AMOUNT");
         require(reserveIn > 0 && reserveOut > 0, "CP: INSUFFICIENT_LIQUIDITY");
 
