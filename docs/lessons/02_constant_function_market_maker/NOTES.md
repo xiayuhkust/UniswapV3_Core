@@ -1,72 +1,53 @@
-# Lesson 2: Constant Function Market Maker Notes
+# 第二课：恒定函数做市商 (Lesson 2: Constant Function Market Maker)
 
-## 核心概念理解 (Core Concept Understanding)
+## 核心概念 (Core Concepts)
 
 ### 1. 恒定乘积公式 (Constant Product Formula)
-- 基本公式 (Basic Formula): x * y = k
-- 意义 (Significance): 
-  * 确保流动性永远存在 (Ensures liquidity always exists)
-  * 价格随交易量自动调整 (Price automatically adjusts with trade volume)
-  * 无需中心化订单簿 (No centralized order book needed)
+- x * y = k
+- x 和 y 是池子中两种代币的储备量
+- k 是一个常数，在每次交易后必须保持不变
 
-### 2. 价格影响 (Price Impact)
-- 交易量越大，价格影响越大 (Larger trades have bigger price impact)
-- 计算公式 (Calculation Formula):
-  ```
-  price_impact = Δy/y = Δx/(x + Δx)
-  ```
-- 实际应用 (Practical Application):
-  * 大额交易分拆执行 (Split large trades)
-  * 设置滑点限制 (Set slippage limits)
+### 2. 交易机制 (Trading Mechanism)
+- 输入代币数量：Δx
+- 输出代币数量：Δy
+- 交易后新的储备量满足：(x + Δx)(y - Δy) = k
 
-### 3. 手续费机制 (Fee Mechanism)
-- 费率设置 (Fee Setting): 0.3%
-- 计算方法 (Calculation Method):
-  ```solidity
-  uint256 constant FEE = 997;
-  uint256 constant FEE_DENOMINATOR = 1000;
-  amount0InWithFee = amount0In * FEE;
-  ```
-- 作用 (Purpose):
-  * 激励流动性提供者 (Incentivize liquidity providers)
-  * 防止无意义交易 (Prevent meaningless trades)
+### 3. 价格计算 (Price Calculation)
+- 即时价格 (Spot Price)：Px = y/x, Py = x/y
+- 实际交易价格受滑点影响
+- 交易量越大，滑点越大
 
-## 技术实现要点 (Technical Implementation Points)
-
-### 1. 储备管理 (Reserve Management)
+### 4. 实现细节 (Implementation Details)
 ```solidity
-uint256 public reserve0;
-uint256 public reserve1;
+// 核心交易公式
+function getOutputAmount(uint256 amountIn, uint256 reserveIn, uint256 reserveOut)
+    internal
+    pure
+    returns (uint256)
+{
+    // 计算考虑手续费后的输入金额
+    uint256 amountInWithFee = amountIn.mul(997);
+    // 计算输出金额
+    uint256 numerator = amountInWithFee.mul(reserveOut);
+    uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
+    return numerator.div(denominator);
+}
 ```
-- 储备更新必须原子化 (Reserve updates must be atomic)
-- 确保储备永不为零 (Ensure reserves never reach zero)
 
-### 2. 交易计算 (Trade Calculation)
-```solidity
-amount1Out = (reserve1 * amount0InWithFee) / 
-            ((reserve0 * FEE_DENOMINATOR) + amount0InWithFee);
-```
-- 精确计算避免舍入误差 (Precise calculation to avoid rounding errors)
-- 防止上溢和下溢 (Prevent overflow and underflow)
+## 测试要点 (Testing Focus)
+1. 基本交易功能验证
+2. 储备金更新验证
+3. 边界条件测试
+4. 手续费计算验证
 
-### 3. 安全考虑 (Security Considerations)
-- 重入攻击防护 (Reentrancy protection)
-- 整数溢出检查 (Integer overflow checks)
-- 输入验证 (Input validation)
+## 关键收获 (Key Takeaways)
+1. CFMM通过简单的数学公式实现了自动做市
+2. 价格由储备金比例自动决定
+3. 大额交易会导致显著的价格影响
+4. 手续费机制确保了做市商的收益
 
-## 测试策略 (Testing Strategy)
-
-### 1. 基础功能测试 (Basic Functionality Tests)
-- 初始化测试 (Initialization tests)
-- 交易执行测试 (Trade execution tests)
-- 事件发出测试 (Event emission tests)
-
-### 2. 边界条件测试 (Edge Case Tests)
-- 零输入处理 (Zero input handling)
-- 极小数值交易 (Small value trades)
-- 储备耗尽情况 (Reserve depletion scenarios)
-
-## 下一步学习重点 (Next Learning Focus)
-1. Uniswap V3 改进 (Uniswap V3 Improvements)
-2. 集中流动性概念 (Concentrated Liquidity Concept)
-3. 多费率层级系统 (Multiple Fee Tier System)
+## 下一步 (Next Steps)
+进入第三课：Uniswap V3的改进
+- 集中流动性概念
+- 价格区间管理
+- 多费率层级
