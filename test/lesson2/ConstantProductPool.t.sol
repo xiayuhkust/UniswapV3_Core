@@ -31,9 +31,9 @@ contract ConstantProductPoolTest is Test {
         pool = new ConstantProductPool(address(token0), address(token1));
 
         // Setup initial liquidity
-        token0.transfer(address(pool), 100 ether);
-        token1.transfer(address(pool), 100 ether);
-        pool._update(100 ether, 100 ether);
+        token0.approve(address(pool), 100 ether);
+        token1.approve(address(pool), 100 ether);
+        pool.initialize(100 ether, 100 ether);
 
         // Setup test user
         token0.transfer(user, 10 ether);

@@ -31,6 +31,18 @@ contract ConstantProductPool {
         token1 = _token1;
     }
 
+    function initialize(uint256 amount0, uint256 amount1) external {
+        require(reserve0 == 0 && reserve1 == 0, "CP: ALREADY_INITIALIZED");
+        require(amount0 > 0 && amount1 > 0, "CP: INSUFFICIENT_LIQUIDITY");
+        
+        // Transfer tokens to the pool
+        IERC20(token0).transferFrom(msg.sender, address(this), amount0);
+        IERC20(token1).transferFrom(msg.sender, address(this), amount1);
+        
+        reserve0 = amount0;
+        reserve1 = amount1;
+    }
+
     function getReserves() public view returns (uint256, uint256) {
         return (reserve0, reserve1);
     }
@@ -66,8 +78,6 @@ contract ConstantProductPool {
         balance1 = IERC20(token1).balanceOf(address(this));
 
         _update(balance0, balance1);
-
-        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
     function getOutputAmount(
