@@ -5,8 +5,10 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "declaration": true,
+    "types": ["node", "mocha", "chai"]
   },
-  "include": ["./scripts", "./test", "./typechain"],
+  "include": ["./test", "./scripts"],
   "files": ["./hardhat.config.ts"]
 }
