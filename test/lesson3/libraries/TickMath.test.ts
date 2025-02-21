@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Contract } from "ethers";
+import { Contract, BigNumber } from "ethers";
 
 describe("TickMath", () => {
     let tickMath: Contract;
@@ -25,13 +25,23 @@ describe("TickMath", () => {
             const minTick = await tickMath.MIN_TICK();
             const maxTick = await tickMath.MAX_TICK();
             
+            // Test invalid ticks
             await expect(
-                tickMath.getSqrtRatioAtTick(minTick.sub(1))
+                tickMath.getSqrtRatioAtTick(BigNumber.from(minTick).sub(1))
             ).to.be.revertedWith('T');
             
             await expect(
-                tickMath.getSqrtRatioAtTick(maxTick.add(1))
+                tickMath.getSqrtRatioAtTick(BigNumber.from(maxTick).add(1))
             ).to.be.revertedWith('T');
+
+            // Test valid ticks
+            await expect(
+                tickMath.getSqrtRatioAtTick(minTick)
+            ).not.to.be.reverted;
+
+            await expect(
+                tickMath.getSqrtRatioAtTick(maxTick)
+            ).not.to.be.reverted;
         });
     });
 });
