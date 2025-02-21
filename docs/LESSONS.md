@@ -16,7 +16,7 @@ Current Progress: Milestone 0
 - [x] 5. What We Will Build
 
 ## Milestone 1: First Swap
-- [ ] 6. Introduction
+- [x] 6. Introduction
 - [ ] 7. Calculating Liquidity
 - [ ] 8. Providing Liquidity
 - [ ] 9. First Swap
