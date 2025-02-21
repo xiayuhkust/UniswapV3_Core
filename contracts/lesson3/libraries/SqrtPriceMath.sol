@@ -10,12 +10,11 @@ library SqrtPriceMath {
     /// @param amountIn How much of token0 to add
     /// @param zeroForOne Whether token0 is being swapped for token1
     /// @return The price after adding the input amount of token0
-    function getNextSqrtPriceFromInput(
-        uint160 sqrtPX96,
-        uint128 liquidity,
-        uint256 amountIn,
-        bool zeroForOne
-    ) internal pure returns (uint160) {
+    function getNextSqrtPriceFromInput(uint160 sqrtPX96, uint128 liquidity, uint256 amountIn, bool zeroForOne)
+        internal
+        pure
+        returns (uint160)
+    {
         require(sqrtPX96 > 0);
         require(liquidity > 0);
 
@@ -29,12 +28,11 @@ library SqrtPriceMath {
     /// @param amountOut How much of token1 to remove
     /// @param zeroForOne Whether token0 is being swapped for token1
     /// @return The price after removing the output amount of token1
-    function getNextSqrtPriceFromOutput(
-        uint160 sqrtPX96,
-        uint128 liquidity,
-        uint256 amountOut,
-        bool zeroForOne
-    ) internal pure returns (uint160) {
+    function getNextSqrtPriceFromOutput(uint160 sqrtPX96, uint128 liquidity, uint256 amountOut, bool zeroForOne)
+        internal
+        pure
+        returns (uint160)
+    {
         require(sqrtPX96 > 0);
         require(liquidity > 0);
 

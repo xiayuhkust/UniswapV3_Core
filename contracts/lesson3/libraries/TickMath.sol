@@ -20,7 +20,7 @@ contract TickMath {
     /// @return sqrtPriceX96 The sqrt price as a Q64.96
     function getSqrtRatioAtTick(int24 tick) public pure returns (uint160 sqrtPriceX96) {
         int24 absValue = tick < 0 ? -tick : tick;
-        require(absValue <= MAX_TICK, 'T');
+        require(absValue <= MAX_TICK, "T");
 
         if (tick == 0) return uint160(1 << 96);
         if (tick < 0) return MIN_SQRT_RATIO;
@@ -32,8 +32,8 @@ contract TickMath {
     /// @param sqrtPriceX96 The sqrt ratio for which to compute the tick as a Q64.96
     /// @return tick The greatest tick for which the ratio is less than or equal to the input ratio
     function getTickAtSqrtRatio(uint160 sqrtPriceX96) public pure returns (int24 tick) {
-        require(sqrtPriceX96 >= MIN_SQRT_RATIO && sqrtPriceX96 <= MAX_SQRT_RATIO, 'R');
-        
+        require(sqrtPriceX96 >= MIN_SQRT_RATIO && sqrtPriceX96 <= MAX_SQRT_RATIO, "R");
+
         if (sqrtPriceX96 == MIN_SQRT_RATIO) return MIN_TICK;
         if (sqrtPriceX96 == MAX_SQRT_RATIO) return MAX_TICK;
         return 0;
