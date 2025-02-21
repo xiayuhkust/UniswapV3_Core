@@ -1,41 +1,20 @@
 {
   "name": "uniswap-v3-core",
   "version": "1.0.0",
-  "description": "Uniswap V3 Core Contracts for Tura Blockchain",
+  "description": "Uniswap V3 Core Contracts",
   "scripts": {
-    "build": "hardhat compile",
     "test": "hardhat test",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "deploy": "hardhat run scripts/deploy.ts",
-    "verify": "hardhat verify",
-    "clean": "hardhat clean",
-    "coverage": "hardhat coverage"
+    "build": "hardhat compile"
   },
-  "keywords": [
-    "uniswap",
-    "v3",
-    "tura",
-    "defi"
-  ],
-  "author": "",
-  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@openzeppelin/contracts": "3.4.2"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "@types/chai": "^4.2.22",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.11.12",
-    "@types/sinon-chai": "3.2.3",
-    "chai": "^4.3.4",
-    "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.7.2",
+    "ethereum-waffle": "^3.0.0",
     "hardhat": "^2.8.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
-  },
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
   }
 }

@@ -13,29 +13,13 @@ contract Market {
 
     Order[] public orderBook;
 
-    event OrderPlaced(
-        address indexed trader,
-        uint256 price,
-        uint256 amount,
-        bool isBuyOrder
-    );
+    event OrderPlaced(address indexed trader, uint256 price, uint256 amount, bool isBuyOrder);
 
-    function placeOrder(
-        uint256 price,
-        uint256 amount,
-        bool isBuyOrder
-    ) external {
+    function placeOrder(uint256 price, uint256 amount, bool isBuyOrder) external {
         require(amount > 0, "Amount must be greater than 0");
         require(price > 0, "Price must be greater than 0");
 
-        orderBook.push(
-            Order({
-                trader: msg.sender,
-                price: price,
-                amount: amount,
-                isBuyOrder: isBuyOrder
-            })
-        );
+        orderBook.push(Order({trader: msg.sender, price: price, amount: amount, isBuyOrder: isBuyOrder}));
 
         emit OrderPlaced(msg.sender, price, amount, isBuyOrder);
     }
