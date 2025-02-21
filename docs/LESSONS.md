@@ -19,7 +19,7 @@ Current Progress: Milestone 0
 - [ ] 6. Introduction
 - [ ] 7. Calculating Liquidity
 - [x] 8. Providing Liquidity
-- [ ] 9. First Swap
+- [x] 9. First Swap
 - [ ] 10. Manager Contract
 - [ ] 11. Deployment
 - [ ] 12. User Interface
