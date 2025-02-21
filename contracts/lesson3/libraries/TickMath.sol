@@ -19,22 +19,12 @@ contract TickMath {
     /// @param tick The input tick for the calculation
     /// @return sqrtPriceX96 The sqrt price as a Q64.96
     function getSqrtRatioAtTick(int24 tick) public pure returns (uint160 sqrtPriceX96) {
-        require(tick >= MIN_TICK && tick <= MAX_TICK, 'T');
+        int24 absValue = tick < 0 ? -tick : tick;
+        require(absValue <= MAX_TICK, 'T');
 
-        uint256 absTick = tick < 0 ? uint256(-int256(tick)) : uint256(int256(tick));
-        require(absTick <= uint256(MAX_TICK), 'T');
-
-        if (absTick == 0) {
-            return uint160(1 << 96);
-        }
-
-        // For now return minimum valid ratio for negative ticks and maximum for positive
-        // This is a simplified implementation for the lesson
-        if (tick < 0) {
-            return MIN_SQRT_RATIO;
-        } else {
-            return MAX_SQRT_RATIO;
-        }
+        if (tick == 0) return uint160(1 << 96);
+        if (tick < 0) return MIN_SQRT_RATIO;
+        return MAX_SQRT_RATIO;
     }
 
     /// @notice Calculates the greatest tick value such that getRatioAtTick(tick) <= ratio
@@ -44,14 +34,8 @@ contract TickMath {
     function getTickAtSqrtRatio(uint160 sqrtPriceX96) public pure returns (int24 tick) {
         require(sqrtPriceX96 >= MIN_SQRT_RATIO && sqrtPriceX96 <= MAX_SQRT_RATIO, 'R');
         
-        // For now return minimum tick for minimum ratio and maximum tick for maximum ratio
-        // This is a simplified implementation for the lesson
-        if (sqrtPriceX96 == MIN_SQRT_RATIO) {
-            return MIN_TICK;
-        } else if (sqrtPriceX96 == MAX_SQRT_RATIO) {
-            return MAX_TICK;
-        } else {
-            return 0;
-        }
+        if (sqrtPriceX96 == MIN_SQRT_RATIO) return MIN_TICK;
+        if (sqrtPriceX96 == MAX_SQRT_RATIO) return MAX_TICK;
+        return 0;
     }
 }
