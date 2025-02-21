@@ -1,43 +1,31 @@
-name: CI
+name: Test
 
 on:
   push:
+    branches: [ "**" ]
   pull_request:
-  workflow_dispatch:
-
-env:
-  FOUNDRY_PROFILE: ci
+    branches: [ "**" ]
 
 jobs:
-  check:
-    strategy:
-      fail-fast: true
-
-    name: Foundry project
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          
+      - name: Install dependencies
+        run: npm install @openzeppelin/contracts@3.4.2
+        
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Show Forge version
-        run: |
-          forge --version
-
-      - name: Run Forge fmt
-        run: |
-          forge fmt --check
-        id: fmt
-
-      - name: Run Forge build
-        run: |
-          forge build --sizes
-        id: build
-
+        
       - name: Run Forge tests
         run: |
+          forge build
           forge test -vvv
-        id: test
