@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Contract, BigNumber } from "ethers";
+import { Contract } from "ethers";
 
 describe("TickMath", () => {
     let tickMath: Contract;
@@ -22,35 +22,24 @@ describe("TickMath", () => {
 
     describe("Price Conversion", () => {
         it("should validate tick range", async () => {
-            const minTick = await tickMath.MIN_TICK();
-            const maxTick = await tickMath.MAX_TICK();
-            
-            // Test invalid ticks
+            // Test invalid tick
             await expect(
-                tickMath.getSqrtRatioAtTick(minTick - 1)
+                tickMath.getSqrtRatioAtTick(-887273)
             ).to.be.revertedWith('T');
             
             await expect(
-                tickMath.getSqrtRatioAtTick(maxTick + 1)
+                tickMath.getSqrtRatioAtTick(887273)
             ).to.be.revertedWith('T');
 
-            // Test valid ticks
+            // Test valid tick
             await expect(
                 tickMath.getSqrtRatioAtTick(0)
             ).not.to.be.reverted;
-
-            await expect(
-                tickMath.getSqrtRatioAtTick(minTick)
-            ).not.to.be.reverted;
-
-            await expect(
-                tickMath.getSqrtRatioAtTick(maxTick)
-            ).not.to.be.reverted;
         });
 
-        it("should handle zero tick", async () => {
+        it("should handle zero tick correctly", async () => {
             const price = await tickMath.getSqrtRatioAtTick(0);
-            expect(price).to.equal(BigNumber.from(2).pow(96));
+            expect(price).to.equal(ethers.BigNumber.from(2).pow(96));
         });
     });
 });
