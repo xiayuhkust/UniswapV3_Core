@@ -51,3 +51,25 @@ function getOutputAmount(uint256 amountIn, uint256 reserveIn, uint256 reserveOut
 - 集中流动性概念
 - 价格区间管理
 - 多费率层级
+
+## 实现注意事项 (Implementation Considerations)
+1. 精度处理 (Precision Handling)
+   - 使用SafeMath防止溢出
+   - 保持计算顺序以最小化精度损失
+   - 手续费计算中的舍入处理
+
+2. 安全考虑 (Security Considerations)
+   - 重入攻击防护
+   - 溢出保护
+   - 金额验证
+
+3. 优化建议 (Optimization Tips)
+   - 最小化存储操作
+   - 批量更新状态
+   - 使用事件记录关键操作
+
+## 与Uniswap V3的关系 (Relationship with Uniswap V3)
+- CFMM是V3的基础
+- V3通过集中流动性改进了效率
+- 价格范围是对基本CFMM的扩展
+
