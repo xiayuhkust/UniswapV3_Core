@@ -52,6 +52,7 @@ contract ConstantProductPool {
         require(to != address(0), "CP: INVALID_TO");
 
         (uint256 _reserve0, uint256 _reserve1) = getReserves();
+        require(_reserve0 > 0 && _reserve1 > 0, "CP: INSUFFICIENT_LIQUIDITY");
         
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -60,17 +61,21 @@ contract ConstantProductPool {
         uint256 amount1Out = 0;
 
         if (amount0In > 0) {
+            require(amount0In <= balance0.mul(2), "CP: INSUFFICIENT_LIQUIDITY");
             amount1Out = getOutputAmount(amount0In, _reserve0, _reserve1);
         } else {
+            require(amount1In <= balance1.mul(2), "CP: INSUFFICIENT_LIQUIDITY");
             amount0Out = getOutputAmount(amount1In, _reserve1, _reserve0);
         }
 
         require(amount0Out > 0 || amount1Out > 0, "CP: INSUFFICIENT_OUTPUT_AMOUNT");
 
         if (amount0Out > 0) {
+            require(amount0Out < _reserve0, "CP: INSUFFICIENT_LIQUIDITY");
             IERC20(token0).transfer(to, amount0Out);
         }
         if (amount1Out > 0) {
+            require(amount1Out < _reserve1, "CP: INSUFFICIENT_LIQUIDITY");
             IERC20(token1).transfer(to, amount1Out);
         }
 
