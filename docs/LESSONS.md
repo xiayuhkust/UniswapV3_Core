@@ -13,7 +13,7 @@ Current Progress: Milestone 0
 - [x] 2. Constant Function Market Maker
 - [x] 3. Uniswap V3
 - [x] 4. Development Environment
-- [ ] 5. What We Will Build
+- [x] 5. What We Will Build
 
 ## Milestone 1: First Swap
 - [ ] 6. Introduction
