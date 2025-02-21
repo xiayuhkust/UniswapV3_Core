@@ -13,14 +13,25 @@ describe("TickMath", () => {
 
     describe("Tick Range", () => {
         it("should have correct min/max tick values", async () => {
-            expect(await tickMath.MIN_TICK()).to.equal(-887272);
-            expect(await tickMath.MAX_TICK()).to.equal(887272);
+            const minTick = await tickMath.MIN_TICK();
+            const maxTick = await tickMath.MAX_TICK();
+            expect(minTick).to.equal(-887272);
+            expect(maxTick).to.equal(887272);
         });
     });
 
     describe("Price Conversion", () => {
-        it("should convert between ticks and sqrt price", async () => {
-            // TODO: Add price conversion tests once implementation is complete
+        it("should validate tick range", async () => {
+            const minTick = await tickMath.MIN_TICK();
+            const maxTick = await tickMath.MAX_TICK();
+            
+            await expect(
+                tickMath.getSqrtRatioAtTick(minTick.sub(1))
+            ).to.be.revertedWith('T');
+            
+            await expect(
+                tickMath.getSqrtRatioAtTick(maxTick.add(1))
+            ).to.be.revertedWith('T');
         });
     });
 });
