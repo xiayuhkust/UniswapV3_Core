@@ -7,12 +7,14 @@ import "../contracts/BitMath.sol";
 
 contract BitMathTest is Test {
     function testMostSignificantBitZero() public {
-        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        vm.prank(address(this));
+        vm.expectRevert("BitMath: ZERO_VALUE");
         BitMath.mostSignificantBit(0);
     }
 
     function testLeastSignificantBitZero() public {
-        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        vm.prank(address(this));
+        vm.expectRevert("BitMath: ZERO_VALUE");
         BitMath.leastSignificantBit(0);
     }
 
