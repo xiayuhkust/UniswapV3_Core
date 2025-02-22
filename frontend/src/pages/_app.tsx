@@ -1,4 +1,5 @@
-import type { AppProps } from 'next/app';
+import React from 'react';
+import { AppProps } from 'next/app';
 import { Web3ReactProvider } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InjectedConnector } from '@web3-react/injected-connector';
@@ -16,7 +17,7 @@ const injected = new InjectedConnector({
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3ReactProvider getLibrary={getLibrary} connectors={[[injected, {}]]}>
+    <Web3ReactProvider getLibrary={getLibrary}>
       <Component {...pageProps} />
     </Web3ReactProvider>
   );

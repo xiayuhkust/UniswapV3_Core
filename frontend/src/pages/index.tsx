@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import type { Web3Provider } from '@ethersproject/providers';
+import React, { useState } from 'react';
+import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
-import type { AbstractConnector } from '@web3-react/abstract-connector';
 import dynamic from 'next/dynamic';
+
+declare module '@web3-react/core' {
+  interface Web3ReactContextInterface<T = any> {
+    activate: (connector: InjectedConnector) => Promise<void>;
+    active: boolean;
+    account: string | null;
+    chainId?: number;
+  }
+}
 
 const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
   ssr: false,
