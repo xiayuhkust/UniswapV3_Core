@@ -18,7 +18,7 @@ contract BitMathTest is Test {
     }
 
     function testLeastSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
         BitMath.leastSignificantBit(0);
     }
 }

@@ -11,15 +11,19 @@ contract TestTokensTest is Test {
     IERC20 public constant TT2 = IERC20(0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122);
 
     function setUp() public {
-        string memory rpc = vm.envString("ETH_RPC_URL");
-        require(bytes(rpc).length > 0, "RPC URL not set");
-        vm.createSelectFork(rpc);
-        require(vm.activeFork() >= 0, "Fork creation failed");
+        vm.createSelectFork(vm.envOr("ETH_RPC_URL", "https://rpc-beta1.turablockchain.com"));
     }
 
-    function testTokenSupplies() public view {
-        require(WETH.totalSupply() == 1_000_000 * 10**18, "WETH supply mismatch");
-        require(TT1.totalSupply() == 1_000_000 * 10**18, "TT1 supply mismatch");
-        require(TT2.totalSupply() == 1_000_000 * 10**18, "TT2 supply mismatch");
+    function testTokenSupplies() public {
+        uint256 wethSupply = WETH.totalSupply();
+        console.log("WETH supply:", wethSupply);
+        uint256 tt1Supply = TT1.totalSupply();
+        console.log("TT1 supply:", tt1Supply);
+        uint256 tt2Supply = TT2.totalSupply();
+        console.log("TT2 supply:", tt2Supply);
+
+        assertEq(wethSupply, 1_000_000 * 10**18, "WETH supply mismatch");
+        assertEq(tt1Supply, 1_000_000 * 10**18, "TT1 supply mismatch");
+        assertEq(tt2Supply, 1_000_000 * 10**18, "TT2 supply mismatch");
     }
 }
