@@ -16,7 +16,7 @@ const injected = new InjectedConnector({
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3ReactProvider getLibrary={getLibrary} connectors={[injected]}>
+    <Web3ReactProvider getLibrary={getLibrary} connectors={[[injected, {}]]}>
       <Component {...pageProps} />
     </Web3ReactProvider>
   );
