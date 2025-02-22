@@ -11,6 +11,9 @@
   - [x] Fee calculation
   - [x] Error handling
 - [ ] Generalized Swapping
+  - [x] State structures implementation
+    - SwapState for tracking swap operations
+    - StepState for tracking swap steps
   - [ ] Price calculation
   - [ ] Swap execution
   - [ ] Fee collection
