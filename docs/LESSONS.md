@@ -31,7 +31,7 @@ Current Progress: Milestone 0
 - [ ] 16. Tick Bitmap Index
 - [ ] 17. Generalized Minting
 - [ ] 18. Generalized Swapping
-- [ ] 19. Quoter Contract
+- [x] 19. Quoter Contract
 - [ ] 20. User Interface
 
 ## Milestone 3: Cross-Tick Swaps
