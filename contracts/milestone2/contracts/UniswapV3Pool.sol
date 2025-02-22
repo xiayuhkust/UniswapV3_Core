@@ -22,6 +22,7 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
     error FlashLoanNotPaid();
     error InsufficientInputAmount();
     error InvalidPriceLimit();
+    error PoolLocked();
     error InvalidTickRange();
     error NotEnoughLiquidity();
     error ZeroLiquidity();
@@ -274,73 +275,113 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
         uint160 sqrtPriceLimitX96,
         bytes calldata data
     ) external override returns (int256 amount0, int256 amount1) {
-        require(amountSpecified != 0, "AS");
+        if (amountSpecified == 0) revert InsufficientInputAmount();
         Slot0 memory slot0Start = slot0_;
 
-        require(slot0Start.unlocked, "LOK");
-        require(
+        if (!slot0Start.unlocked) revert PoolLocked();
+        if (
             zeroForOne
-                ? sqrtPriceLimitX96 < slot0Start.sqrtPriceX96 &&
-                    sqrtPriceLimitX96 > TickMath.MIN_SQRT_RATIO
-                : sqrtPriceLimitX96 > slot0Start.sqrtPriceX96 &&
-                    sqrtPriceLimitX96 < TickMath.MAX_SQRT_RATIO,
-            "SPL"
-        );
+                ? sqrtPriceLimitX96 > slot0Start.sqrtPriceX96 ||
+                    sqrtPriceLimitX96 < TickMath.MIN_SQRT_RATIO
+                : sqrtPriceLimitX96 < slot0Start.sqrtPriceX96 ||
+                    sqrtPriceLimitX96 > TickMath.MAX_SQRT_RATIO
+        ) revert InvalidPriceLimit();
 
         slot0_.unlocked = false;
 
         SwapState memory state = SwapState({
-            amountSpecifiedRemaining: amountSpecified,
+            amountSpecifiedRemaining: uint256(amountSpecified > 0 ? amountSpecified : -amountSpecified),
             amountCalculated: 0,
             sqrtPriceX96: slot0Start.sqrtPriceX96,
             tick: slot0Start.tick,
             liquidity: liquidity,
-            feeGrowthGlobalX128: 0
+            feeGrowthGlobalX128: zeroForOne ? feeGrowthGlobal0X128 : feeGrowthGlobal1X128
         });
 
-        // Single step swap for initial implementation
-        StepState memory step;
-        step.sqrtPriceStartX96 = state.sqrtPriceX96;
+        // Main swap loop
+        while (
+            state.amountSpecifiedRemaining > 0 &&
+            state.sqrtPriceX96 != sqrtPriceLimitX96
+        ) {
+            StepState memory step;
+            step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
-        (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
-            .computeSwapStep(
-                state.sqrtPriceX96,
-                sqrtPriceLimitX96,
-                state.liquidity,
-                uint256(
-                    state.amountSpecifiedRemaining > 0
-                        ? state.amountSpecifiedRemaining
-                        : -state.amountSpecifiedRemaining
-                ),
-                fee
+            // Find next initialized tick
+            (step.nextTick, bool initialized) = tickBitmap.nextInitializedTickWithinOneWord(
+                state.tick,
+                int24(tickSpacing),
+                zeroForOne
             );
 
-        if (amountSpecified < 0) {
-            state.amountSpecifiedRemaining += step.amountIn.toInt256();
-            state.amountCalculated = step.amountOut.toInt256();
-        } else {
-            state.amountSpecifiedRemaining -= step.amountOut.toInt256();
-            state.amountCalculated = -(step.amountIn.toInt256());
+            // Get sqrt price at next tick
+            step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.nextTick);
+
+            // Ensure price doesn't exceed limit
+            if (zeroForOne && step.sqrtPriceNextX96 < sqrtPriceLimitX96) {
+                step.sqrtPriceNextX96 = sqrtPriceLimitX96;
+            } else if (!zeroForOne && step.sqrtPriceNextX96 > sqrtPriceLimitX96) {
+                step.sqrtPriceNextX96 = sqrtPriceLimitX96;
+            }
+
+            // Compute swap step
+            (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
+                .computeSwapStep(
+                    state.sqrtPriceX96,
+                    step.sqrtPriceNextX96,
+                    state.liquidity,
+                    state.amountSpecifiedRemaining,
+                    fee
+                );
+
+            // Update state with step results
+            state.sqrtPriceX96 = step.sqrtPriceNextX96;
+            state.amountSpecifiedRemaining -= step.amountIn;
+            state.amountCalculated += step.amountOut;
+            state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
+
+            // Update fee growth
+            if (state.liquidity > 0) {
+                state.feeGrowthGlobalX128 += SimpleQ32Math.mulDiv(
+                    step.feeAmount,
+                    FixedPoint128.Q128,
+                    state.liquidity
+                );
+            }
         }
 
-        state.sqrtPriceX96 = step.sqrtPriceNextX96;
-        state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
-
+        // Update pool state
         if (state.tick != slot0Start.tick) {
             (slot0_.sqrtPriceX96, slot0_.tick) = (state.sqrtPriceX96, state.tick);
         } else {
             slot0_.sqrtPriceX96 = state.sqrtPriceX96;
         }
 
+        // Update fee growth
+        if (zeroForOne) {
+            feeGrowthGlobal0X128 = state.feeGrowthGlobalX128;
+        } else {
+            feeGrowthGlobal1X128 = state.feeGrowthGlobalX128;
+        }
+
+        // Calculate final amounts
         (amount0, amount1) = zeroForOne
             ? (
-                amountSpecified - state.amountSpecifiedRemaining,
-                state.amountCalculated
+                int256(state.amountSpecifiedRemaining - amountSpecified),
+                int256(state.amountCalculated)
             )
             : (
-                state.amountCalculated,
-                amountSpecified - state.amountSpecifiedRemaining
+                int256(state.amountCalculated),
+                int256(state.amountSpecifiedRemaining - amountSpecified)
             );
+
+        // Transfer tokens
+        if (zeroForOne) {
+            if (amount1 > 0) IERC20(token1).transfer(recipient, uint256(amount1));
+            if (amount0 < 0) IERC20(token0).transferFrom(msg.sender, address(this), uint256(-amount0));
+        } else {
+            if (amount0 > 0) IERC20(token0).transfer(recipient, uint256(amount0));
+            if (amount1 < 0) IERC20(token1).transferFrom(msg.sender, address(this), uint256(-amount1));
+        }
 
         slot0_.unlocked = true;
 
@@ -356,8 +397,8 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
     }
 
     struct SwapState {
-        int256 amountSpecifiedRemaining;
-        int256 amountCalculated;
+        uint256 amountSpecifiedRemaining;
+        uint256 amountCalculated;
         uint160 sqrtPriceX96;
         int24 tick;
         uint128 liquidity;
@@ -366,6 +407,7 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
 
     struct StepState {
         uint160 sqrtPriceStartX96;
+        int24 nextTick;
         uint160 sqrtPriceNextX96;
         uint256 amountIn;
         uint256 amountOut;
