@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "./UniswapV3Pool.Utils.t.sol";
 import "./TestUniswapV3Pool.sol";
 import "./MockToken.sol";
-import "interfaces/IUniswapV3SwapCallback.sol";
+import "../interfaces/IUniswapV3SwapCallback.sol";
 import "../contracts/libraries/TickMath.sol";
 import "../contracts/libraries/LiquidityMath.sol";
 

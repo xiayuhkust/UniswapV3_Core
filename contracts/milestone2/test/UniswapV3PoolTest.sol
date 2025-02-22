@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/Vm.sol";
 import "./TestUniswapV3Pool.sol";
 import {MockToken} from "./MockToken.sol";
-import "interfaces/IUniswapV3MintCallback.sol";
+import "../interfaces/IUniswapV3MintCallback.sol";
 
 contract UniswapV3PoolTest is Test, IUniswapV3MintCallback {
     UniswapV3Pool pool;

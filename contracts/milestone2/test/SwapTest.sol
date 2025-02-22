@@ -4,9 +4,9 @@ pragma solidity ^0.8.14;
 import "forge-std/Test.sol";
 import "./TestUniswapV3Pool.sol";
 import "./MockToken.sol";
-import "interfaces/IERC20.sol";
-import "interfaces/IUniswapV3MintCallback.sol";
-import "interfaces/IUniswapV3SwapCallback.sol";
+import "../interfaces/IERC20.sol";
+import "../interfaces/IUniswapV3MintCallback.sol";
+import "../interfaces/IUniswapV3SwapCallback.sol";
 
 contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
     UniswapV3Pool pool;
