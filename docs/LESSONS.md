@@ -32,10 +32,10 @@ Current Progress: Milestone 0
 - [ ] 17. Generalized Minting
 - [ ] 18. Generalized Swapping
 - [x] 19. Quoter Contract
-- [ ] 20. User Interface
+- [x] 20. User Interface
 
 ## Milestone 3: Cross-Tick Swaps
-- [ ] 21. Introduction
+- [x] 21. Introduction
 - [ ] 22. Different Price Ranges
 - [ ] 23. Cross-Tick Swaps
 - [ ] 24. Slippage Protection
