@@ -35,8 +35,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using TickBitmap for mapping(int16 => uint256);
 
     // Pool tokens
-    address public immutable token0;
-    address public immutable token1;
+    address public immutable override token0;
+    address public immutable override token1;
     uint24 public immutable fee;
 
     // Tick spacing
