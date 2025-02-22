@@ -11,11 +11,13 @@ contract TestTokensTest is Test {
     IERC20 public constant TT2 = IERC20(0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122);
 
     function setUp() public {
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"));
+        string memory rpc = vm.envString("ETH_RPC_URL");
+        console.log("Using RPC URL:", rpc);
+        vm.createSelectFork(rpc);
     }
 
     function testTokenSupplies() public {
         // Skip token supply tests temporarily until we can debug the RPC issues
-        assertTrue(true);
+        assertTrue(true, "Skipping token supply tests");
     }
 }
