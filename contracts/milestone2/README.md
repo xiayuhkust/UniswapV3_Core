@@ -7,9 +7,22 @@ This directory contains the implementation of Milestone 2 components from the Un
 - `interfaces/`: Interface definitions for the implementation
 
 ## Implementation Progress
-- [ ] Tick Bitmap Index
-- [ ] Generalized Minting
-- [ ] Generalized Swapping
+- [x] Tick Bitmap Index
+  - [x] BitMath library implementation
+  - [x] TickBitmap contract implementation
+  - [x] Test coverage complete
+- [x] Generalized Minting
+  - [x] Position management
+  - [x] Liquidity tracking
+  - [x] Fee calculation
+- [x] Generalized Swapping
+  - [x] Price calculation
+  - [x] Swap execution
+  - [x] Fee collection
+- [x] Frontend Implementation
+  - [x] Token selection interface
+  - [x] Swap functionality
+  - [x] Wallet connection
 
 ## Test Tokens
 - WETH (TuraWETH): 0xF0e8a104Cc6ecC7bBa4Dc89473d1C64593eA69be
