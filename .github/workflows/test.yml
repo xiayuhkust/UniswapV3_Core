@@ -1,4 +1,4 @@
-name: Test
+name: test
 
 on:
   push:
@@ -8,31 +8,24 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
+  ETH_RPC_URL: https://rpc-beta1.turablockchain.com
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          submodules: recursive
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: 'npm'
-
+          node-version: '16'
       - name: Install dependencies
         run: npm install
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-        
       - name: Run Forge build
         run: |
           forge --version
           forge build --sizes
-          
       - name: Run Forge tests
-        run: forge test -vvv
+        run: |
+          forge test -vvv
