@@ -1,7 +1,1 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-forge-std/=lib/forge-std/src/
-ds-test/=lib/forge-std/lib/ds-test/src/
-prb-math/=lib/prb-math/
-interfaces/=contracts/milestone2/interfaces/
-libraries/=contracts/milestone2/contracts/libraries/
-@openzeppelin/=lib/openzeppelin-contracts/
