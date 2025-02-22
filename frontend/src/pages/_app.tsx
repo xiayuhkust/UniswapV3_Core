@@ -11,9 +11,7 @@ function getLibrary(provider: any): Web3Provider {
   return library;
 }
 
-const injected = new InjectedConnector({
-  supportedChainIds: [1337], // Tura testnet
-});
+// Injector is defined in index.tsx
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
