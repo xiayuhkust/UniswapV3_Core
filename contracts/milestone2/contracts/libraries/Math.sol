@@ -185,4 +185,43 @@ library Math {
     {
         return SimpleQ32Math.divRoundingUp(numerator, denominator);
     }
+
+    function getNextSqrtPriceFromOutput(
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        uint256 amountOut,
+        bool zeroForOne
+    ) internal pure returns (uint160 sqrtPriceNextX96) {
+        sqrtPriceNextX96 = zeroForOne
+            ? getNextSqrtPriceFromAmount1RoundingDown(
+                sqrtPriceX96,
+                liquidity,
+                amountOut
+            )
+            : getNextSqrtPriceFromAmount0RoundingUp(
+                sqrtPriceX96,
+                liquidity,
+                amountOut
+            );
+    }
+
+    function getNextSqrtPriceFromAmount0RoundingDown(
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        uint256 amount0
+    ) internal pure returns (uint160) {
+        uint256 numerator = uint256(liquidity) << FixedPoint96.RESOLUTION;
+        uint256 product = amount0 * sqrtPriceX96;
+
+        // If product doesn't overflow, use the precise formula
+        if (product / amount0 == sqrtPriceX96) {
+            uint256 denominator = numerator + product;
+            if (denominator >= numerator) {
+                return uint160(SimpleQ32Math.mulDiv(numerator, sqrtPriceX96, denominator));
+            }
+        }
+
+        // If product overflows, use less precise formula
+        return uint160(numerator / (numerator / sqrtPriceX96 + amount0));
+    }
 }
