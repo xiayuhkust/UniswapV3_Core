@@ -8,17 +8,19 @@ export default function PoolInterface() {
   const [amount1, setAmount1] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSwap = async () => {
+  const handleSwap = useCallback(async () => {
     if (!library || !account) return;
     setLoading(true);
     try {
-      // TODO: Implement swap logic
-      console.log('Swap initiated');
+      // TODO: Implement swap logic using library (Web3Provider)
+      const provider = library as Web3Provider;
+      console.log('Swap initiated with provider:', provider);
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [library, account]);
 
   return (
     <div className="max-w-lg mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">

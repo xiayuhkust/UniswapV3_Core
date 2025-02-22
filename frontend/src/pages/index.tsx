@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import dynamic from 'next/dynamic';
+import type { AbstractConnector } from '@web3-react/abstract-connector';
 
 const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
   ssr: false,
@@ -16,13 +17,13 @@ export default function Home() {
   const { account, activate, active, chainId } = useWeb3React();
   const [loading, setLoading] = useState(false);
 
-  const connectWallet = async () => {
+  const connectWallet = useCallback(async () => {
     try {
       await activate(injected);
     } catch (error) {
       console.error('Error connecting wallet:', error);
     }
-  };
+  }, [activate]);
 
   return (
     <div className="container mx-auto px-4 py-8">
