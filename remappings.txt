@@ -1,5 +1,4 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 forge-std/=lib/forge-std/src/
 ds-test/=lib/forge-std/lib/ds-test/src/
-prb-math/=prb-math/contracts/
-bytes-utils/=solidity-bytes-utils/contracts/
+prb-math/=contracts/milestone2/reference/lib/
