@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, FC, ChangeEvent } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 
-export default function PoolInterface() {
+const PoolInterface: FC = () => {
   const { account, library } = useWeb3React();
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
@@ -32,7 +32,7 @@ export default function PoolInterface() {
           <input
             type="number"
             value={amount0}
-            onChange={(e) => setAmount0(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setAmount0(e.target.value)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="0.0"
           />
@@ -43,7 +43,7 @@ export default function PoolInterface() {
           <input
             type="number"
             value={amount1}
-            onChange={(e) => setAmount1(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setAmount1(e.target.value)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="0.0"
           />
@@ -59,4 +59,6 @@ export default function PoolInterface() {
       </div>
     </div>
   );
-}
+};
+
+export default PoolInterface;
