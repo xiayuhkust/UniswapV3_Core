@@ -12,6 +12,7 @@ import "./libraries/Tick.sol";
 import "./libraries/TickMath.sol";
 import "./libraries/Position.sol";
 import "./libraries/Oracle.sol";
+import "./libraries/Tick.sol";
 
 contract UniswapV3Pool is IUniswapV3Pool {
     using LowGasSafeMath for uint256;
