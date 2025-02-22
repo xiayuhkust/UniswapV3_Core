@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.14;
 
-import "./FullMath.sol";
+import "./SimpleQ32Math.sol";
 import "./Math.sol";
 
 library SwapMath {
@@ -22,7 +22,7 @@ library SwapMath {
         )
     {
         bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
-        uint256 amountRemainingLessFee = FullMath.mulDiv(
+        uint256 amountRemainingLessFee = SimpleQ32Math.mulDiv(
             amountRemaining,
             1e6 - fee,
             1e6

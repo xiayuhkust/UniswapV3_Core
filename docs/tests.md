@@ -1,5 +1,49 @@
 # Test Status Report
 
+## SimpleQ32Math Library Tests
+
+### Test Environment
+- Location: `/isolated_test/test/SimpleQ32MathTest.t.sol`
+- Command: `forge test --match-contract SimpleQ32MathTest -vvv`
+
+### Test Results
+✅ testBasicOperations (gas: 1193)
+- Basic multiplication and division
+- Example: 100 * 200 / 50 = 400
+
+✅ testFeeCalculation (gas: 1469)
+- Fee calculation with 1M tokens and 0.3% fee
+- Result: 997,000 (99.7% of input)
+
+✅ testLargeNumbers (gas: 1193)
+- Large amount handling (1e27 tokens)
+- Fee calculation with 0.3%
+
+✅ testRoundingUp (gas: 6468)
+- Rounding behavior for division
+- Example: 10 * 10 / 3 = 34 (rounds up from 33.33...)
+
+✅ testZeroInputs (gas: 571)
+- Zero input handling
+- Both multiplicand and multiplier cases
+
+❌ testDivByZero (gas: 3590)
+- Error: call didn't revert at a lower depth than cheatcode call depth
+- Status: Needs fix in error handling mechanism
+- Milestone Scope: Current
+
+### Summary
+- Total Tests: 6
+- Passed: 5
+- Failed: 1
+- Gas Usage Range: 571-6468
+
+### Notes
+- Basic arithmetic operations working correctly
+- Fee calculations precise and accurate
+- Error handling needs improvement for division by zero case
+- All core functionality for SwapMath integration is working
+
 ## Test Execution Guide
 
 ### Local Testing

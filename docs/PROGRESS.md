@@ -11,6 +11,10 @@
   - [x] Fee calculation
   - [x] Error handling
 - [ ] Generalized Swapping
+  - [x] Math library implementation
+    - [x] SimpleQ32Math library created
+    - [x] Basic operations tested
+    - [ ] Error handling improvements needed
   - [ ] Price calculation
   - [ ] Swap execution
   - [ ] Fee collection

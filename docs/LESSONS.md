@@ -28,9 +28,15 @@ Current Progress: Milestone 0
 - [x] 13. Introduction
 - [x] 14. Output Amount Calculation
 - [x] 15. Math in Solidity
-- [ ] 16. Tick Bitmap Index
-- [ ] 17. Generalized Minting
+- [x] 16. Tick Bitmap Index
+- [x] 17. Generalized Minting
 - [ ] 18. Generalized Swapping
+  - [x] Math library implementation
+  - [x] Basic operations tested
+  - [ ] Error handling improvements needed
+  - [ ] Price calculation
+  - [ ] Swap execution
+  - [ ] Fee collection
 - [x] 19. Quoter Contract
 - [ ] 20. User Interface
 
