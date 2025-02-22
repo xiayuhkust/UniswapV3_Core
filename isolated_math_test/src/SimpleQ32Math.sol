@@ -3,33 +3,59 @@ pragma solidity ^0.8.14;
 
 library SimpleQ32Math {
     uint256 internal constant Q32 = 0x100000000;
-    error DivisionByZero();
-    error MultiplicationOverflow();
 
     function mulDiv(
         int256 amount,
         uint256 multiplier,
         uint256 denominator
     ) internal pure returns (int256) {
-        if (denominator == 0) revert DivisionByZero();
+        require(denominator > 0, "SimpleQ32Math: division by zero");
         if (amount == 0 || multiplier == 0) return 0;
         
         // Handle negative numbers
         bool isNegative = amount < 0;
-        uint256 absAmount = uint256(isNegative ? -amount : amount);
         
-        // Perform multiplication first
-        uint256 product = absAmount * multiplier;
-        if (product / absAmount != multiplier) revert MultiplicationOverflow();
+        // Safe conversion to absolute value
+        uint256 absAmount;
+        if (amount == type(int256).min) {
+            if (multiplier > 1) {
+                revert("SimpleQ32Math: multiplication overflow");
+            }
+            // For int256.min, we need special handling since abs(min) > max
+            absAmount = uint256(type(int256).max) + 1;
+        } else {
+            absAmount = uint256(isNegative ? -amount : amount);
+        }
         
-        // Perform division
+        // Check for multiplication overflow
+        uint256 product;
+        unchecked {
+            product = absAmount * multiplier;
+            if (multiplier != 0) {
+                if (product / multiplier != absAmount) {
+                    revert("SimpleQ32Math: multiplication overflow");
+                }
+            }
+        }
+        
+        // Perform division and check for overflow
         uint256 quotient = product / denominator;
         
-        // Check for overflow when converting back to int256
-        if (quotient > uint256(type(int256).max)) revert MultiplicationOverflow();
-        
-        // Convert to int256 and restore sign
-        return isNegative ? -int256(quotient) : int256(quotient);
+        // For negative numbers, we need special handling for int256.min
+        if (isNegative) {
+            if (amount == type(int256).min && multiplier == 1 && denominator == 1) {
+                return type(int256).min;
+            }
+            if (quotient > uint256(type(int256).max)) {
+                revert("SimpleQ32Math: result overflow");
+            }
+            return -int256(quotient);
+        } else {
+            if (quotient > uint256(type(int256).max)) {
+                revert("SimpleQ32Math: result overflow");
+            }
+            return int256(quotient);
+        }
     }
 
     function mulDivRoundingUp(
@@ -37,11 +63,51 @@ library SimpleQ32Math {
         uint256 multiplier,
         uint256 denominator
     ) internal pure returns (int256) {
-        int256 result = mulDiv(amount, multiplier, denominator);
-        if (amount > 0 && mulmod(uint256(amount), multiplier, denominator) > 0) {
-            if (result == type(int256).max) revert MultiplicationOverflow();
-            result++;
+        // Handle zero cases first
+        if (amount == 0 || multiplier == 0) return 0;
+        require(denominator > 0, "SimpleQ32Math: division by zero");
+        
+        // Handle negative numbers
+        bool isNegative = amount < 0;
+        uint256 absAmount;
+        
+        // Safe conversion to absolute value
+        if (amount == type(int256).min) {
+            if (multiplier > 1) {
+                revert("SimpleQ32Math: multiplication overflow");
+            }
+            absAmount = uint256(type(int256).max) + 1;
+        } else {
+            absAmount = uint256(isNegative ? -amount : amount);
         }
-        return result;
+        
+        // Calculate result and check for overflow
+        uint256 product = absAmount * multiplier;
+        if (multiplier != 0 && product / multiplier != absAmount) {
+            revert("SimpleQ32Math: multiplication overflow");
+        }
+        
+        // Calculate quotient and remainder
+        uint256 quotient = product / denominator;
+        uint256 remainder = product % denominator;
+        
+        // For both positive and negative numbers, round up if there's any remainder
+        if (remainder > 0) {
+            require(quotient < type(uint256).max, "SimpleQ32Math: result overflow");
+            quotient++;
+        }
+        
+        // Convert back to signed and handle overflow checks
+        if (isNegative) {
+            if (quotient > uint256(type(int256).max) + 1) {
+                revert("SimpleQ32Math: result overflow");
+            }
+            return -int256(quotient);
+        } else {
+            if (quotient > uint256(type(int256).max)) {
+                revert("SimpleQ32Math: result overflow");
+            }
+            return int256(quotient);
+        }
     }
 }
