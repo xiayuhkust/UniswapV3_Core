@@ -10,13 +10,19 @@
   - [x] Liquidity tracking
   - [x] Fee calculation
   - [x] Error handling
-- [ ] Generalized Swapping
+- [x] Generalized Swapping
   - [x] State structures implementation
     - SwapState for tracking swap operations
     - StepState for tracking swap steps
-  - [ ] Price calculation
-  - [ ] Swap execution
-  - [ ] Fee collection
+  - [x] Price calculation
+    - Implemented getNextSqrtPriceFromInput/Output
+    - Added price limit validation
+  - [x] Swap execution
+    - Added support for both swap directions
+    - Implemented step-by-step swap execution
+  - [x] Fee collection
+    - Added per-step fee calculation
+    - Implemented fee growth tracking
 - [ ] User Interface Updates
 
 ## Milestone 3: Cross-Tick Swaps
