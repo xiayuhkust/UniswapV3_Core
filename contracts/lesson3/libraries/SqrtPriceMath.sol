@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity =0.7.6;
+pragma solidity ^0.8.14;
 
 /// @title Math library for computing sqrt price points
 /// @notice Implements Uniswap V3 sqrt price calculations
