@@ -53,10 +53,14 @@ contract UniswapV3PoolTest is Test {
         (uint128 liquidity,,,,) = pool.positions(positionKey);
 
         assertEq(uint256(liquidity), uint256(amount), "Incorrect liquidity");
+        // Verify returned amounts (currently 0 as we haven't implemented full minting logic)
+        assertEq(amount0, 0, "Amount0 should be 0");
+        assertEq(amount1, 0, "Amount1 should be 0");
     }
 
-    function testFailMintWithInvalidTicks() public {
+    function test_RevertWhen_InvalidTickOrder() public {
         // Try to mint with lower tick greater than upper tick
+        vm.expectRevert("TLU");  // Tick Lower > Upper
         pool.mint(owner, 60, -60, 1000, "");
     }
 }
