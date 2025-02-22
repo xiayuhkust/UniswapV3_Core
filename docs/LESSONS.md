@@ -30,7 +30,7 @@ Current Progress: Milestone 0
 - [x] 15. Math in Solidity
 - [ ] 16. Tick Bitmap Index
 - [ ] 17. Generalized Minting
-- [ ] 18. Generalized Swapping
+- [x] 18. Generalized Swapping
 - [ ] 19. Quoter Contract
 - [ ] 20. User Interface
 
