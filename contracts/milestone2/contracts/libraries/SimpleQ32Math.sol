@@ -53,4 +53,17 @@ library SimpleQ32Math {
             }
         }
     }
+
+    /// @notice Calculates ceil(numerator÷denominator)
+    /// @param numerator The numerator
+    /// @param denominator The divisor
+    /// @return result The ceil(numerator÷denominator)
+    function divRoundingUp(uint256 numerator, uint256 denominator)
+        internal
+        pure
+        returns (uint256 result)
+    {
+        if (denominator == 0) revert DivisionByZero();
+        result = (numerator + denominator - 1) / denominator;
+    }
 }

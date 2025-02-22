@@ -183,11 +183,6 @@ library Math {
         pure
         returns (uint256 result)
     {
-        assembly {
-            result := add(
-                div(numerator, denominator),
-                gt(mod(numerator, denominator), 0)
-            )
-        }
+        return SimpleQ32Math.divRoundingUp(numerator, denominator);
     }
 }

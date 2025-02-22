@@ -14,6 +14,10 @@ contract SimpleQ32MathWrapper {
     function mulDivRoundingUp(uint256 a, uint256 b, uint256 denominator) external pure returns (uint256) {
         return SimpleQ32Math.mulDivRoundingUp(a, b, denominator);
     }
+
+    function divRoundingUp(uint256 numerator, uint256 denominator) external pure returns (uint256) {
+        return SimpleQ32Math.divRoundingUp(numerator, denominator);
+    }
 }
 
 contract SimpleQ32MathTest is Test {
@@ -69,5 +73,17 @@ contract SimpleQ32MathTest is Test {
             2,
             2
         );
+    }
+
+    function testDivRoundingUp() public {
+        assertEq(wrapper.divRoundingUp(10, 3), 4);
+        assertEq(wrapper.divRoundingUp(10, 2), 5);
+        assertEq(wrapper.divRoundingUp(10, 1), 10);
+    }
+
+    function testDivRoundingUpEdgeCases() public {
+        assertEq(wrapper.divRoundingUp(0, 1), 0);
+        vm.expectRevert(abi.encodeWithSignature("DivisionByZero()"));
+        wrapper.divRoundingUp(1, 0);
     }
 }
