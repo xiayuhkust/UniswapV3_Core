@@ -5,20 +5,23 @@ import "forge-std/Test.sol";
 import "../contracts/BitMath.sol";
 
 contract BitMathTest is Test {
-    function testMostSignificantBit(uint256 x) public {
-        vm.assume(x > 0);
-        uint8 result = BitMath.mostSignificantBit(x);
-        assertGt(result, 0, "MSB should be > 0 for non-zero input");
+    function testMostSignificantBit() public {
+        assertEq(BitMath.mostSignificantBit(1), 0);
+        assertEq(BitMath.mostSignificantBit(2), 1);
+        assertEq(BitMath.mostSignificantBit(4), 2);
     }
 
-    function testLeastSignificantBit(uint256 x) public {
-        vm.assume(x > 0);
-        uint8 result = BitMath.leastSignificantBit(x);
-        assertLt(result, 256, "LSB should be < 256");
+    function testLeastSignificantBit() public {
+        assertEq(BitMath.leastSignificantBit(1), 0);
+        assertEq(BitMath.leastSignificantBit(2), 1);
+        assertEq(BitMath.leastSignificantBit(4), 2);
     }
 
-    function testLeastSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+    function testZeroInput() public {
+        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
         BitMath.leastSignificantBit(0);
+
+        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        BitMath.mostSignificantBit(0);
     }
 }
