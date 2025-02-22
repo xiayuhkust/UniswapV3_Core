@@ -17,11 +17,11 @@ contract BitMathTest is Test {
     }
 
     function testMostSignificantBitOne() public {
-        assertEq(BitMath.mostSignificantBit(1), 0);
+        assertEq(uint256(BitMath.mostSignificantBit(1)), uint256(0));
     }
 
     function testLeastSignificantBitOne() public {
-        assertEq(BitMath.leastSignificantBit(1), 0);
+        assertEq(uint256(BitMath.leastSignificantBit(1)), uint256(0));
     }
 
     function testMostSignificantBitPowersOfTwo() public {
