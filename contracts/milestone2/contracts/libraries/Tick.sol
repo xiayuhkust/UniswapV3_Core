@@ -94,7 +94,7 @@ library Tick {
 
         // when the lower (upper) tick is crossed left to right (right to left), liquidity must be added (removed)
         info.liquidityNet = upper
-            ? int128(info.liquidityNet).sub(liquidityDelta).toInt128()
-            : int128(info.liquidityNet).add(liquidityDelta).toInt128();
+            ? LowGasSafeMath.sub(int128(info.liquidityNet), liquidityDelta)
+            : LowGasSafeMath.add(int128(info.liquidityNet), liquidityDelta);
     }
 }
