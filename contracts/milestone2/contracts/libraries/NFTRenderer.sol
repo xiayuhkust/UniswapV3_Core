@@ -22,8 +22,8 @@ library NFTRenderer {
         returns (string memory)
     {
         IUniswapV3Pool pool = IUniswapV3Pool(params.pool);
-        IERC20 token0 = IERC20(IUniswapV3Pool(pool).token0);
-        IERC20 token1 = IERC20(IUniswapV3Pool(pool).token1);
+        IERC20 token0 = IERC20(pool.token0());
+        IERC20 token1 = IERC20(pool.token1());
         string memory symbol0 = token0.symbol();
         string memory symbol1 = token1.symbol();
 
