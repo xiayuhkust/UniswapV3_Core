@@ -2,13 +2,6 @@ import React, { useState } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 
-declare module '@web3-react/core' {
-  interface Web3ReactContextInterface<T = any> {
-    library: T | undefined;
-    account: string | null;
-  }
-}
-
 export default function PoolInterface() {
   const { account, library } = useWeb3React();
   const [amount0, setAmount0] = useState('');

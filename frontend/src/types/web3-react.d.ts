@@ -1,12 +1,14 @@
-import { InjectedConnector } from '@web3-react/injected-connector';
+import { AbstractConnector } from '@web3-react/abstract-connector';
 import { Web3Provider } from '@ethersproject/providers';
 
 declare module '@web3-react/core' {
   export interface Web3ReactContextInterface<T = any> {
-    activate: (connector: InjectedConnector) => Promise<void>;
+    activate: (connector: AbstractConnector) => Promise<void>;
     active: boolean;
     account: string | null;
     chainId?: number;
-    library?: Web3Provider;
+    library?: T;
+    deactivate: () => void;
+    error?: Error;
   }
 }
