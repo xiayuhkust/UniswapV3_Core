@@ -14,6 +14,12 @@ library Tick {
         // fee growth on the other side of this tick (relative to the current tick)
         uint256 feeGrowthOutside0X128;
         uint256 feeGrowthOutside1X128;
+        // the cumulative tick value on the other side of the tick
+        int56 tickCumulativeOutside;
+        // the seconds per liquidity on the other side of the tick
+        uint160 secondsPerLiquidityOutsideX128;
+        // the seconds spent on the other side of the tick
+        uint32 secondsOutside;
     }
 
     function update(

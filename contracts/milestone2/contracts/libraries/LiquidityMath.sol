@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
-import {mulDiv} from "prb-math/Common.sol";
+import "./FullMath.sol";
 import "./FixedPoint96.sol";
 
 library LiquidityMath {
@@ -14,13 +14,13 @@ library LiquidityMath {
         if (sqrtPriceAX96 > sqrtPriceBX96)
             (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
 
-        uint256 intermediate = mulDiv(
+        uint256 intermediate = FullMath.mulDiv(
             sqrtPriceAX96,
             sqrtPriceBX96,
             FixedPoint96.Q96
         );
         liquidity = uint128(
-            mulDiv(amount0, intermediate, sqrtPriceBX96 - sqrtPriceAX96)
+            FullMath.mulDiv(amount0, intermediate, sqrtPriceBX96 - sqrtPriceAX96)
         );
     }
 
@@ -34,7 +34,7 @@ library LiquidityMath {
             (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
 
         liquidity = uint128(
-            mulDiv(
+            FullMath.mulDiv(
                 amount1,
                 FixedPoint96.Q96,
                 sqrtPriceBX96 - sqrtPriceAX96
@@ -80,15 +80,23 @@ library LiquidityMath {
         }
     }
 
-    function addLiquidity(uint128 x, int128 y)
+    function addDelta(uint128 x, int128 y)
         internal
         pure
         returns (uint128 z)
     {
         if (y < 0) {
-            z = x - uint128(-y);
+            require((z = x - uint128(-y)) < x, "LS");
         } else {
-            z = x + uint128(y);
+            require((z = x + uint128(y)) >= x, "LA");
         }
+    }
+
+    function addLiquidity(uint128 x, int128 y)
+        internal
+        pure
+        returns (uint128 z)
+    {
+        return addDelta(x, y);
     }
 }

@@ -19,6 +19,20 @@ interface IUniswapV3Pool {
             uint16 observationCardinalityNext
         );
 
+    struct TickInfo {
+        bool initialized;
+        uint128 liquidityGross;
+        int128 liquidityNet;
+        uint256 feeGrowthOutside0X128;
+        uint256 feeGrowthOutside1X128;
+        int56 tickCumulativeOutside;
+        uint160 secondsPerLiquidityOutsideX128;
+        uint32 secondsOutside;
+        uint32 secondsOutsideX32;
+    }
+
+    function ticks(int24 tick) external view returns (TickInfo memory);
+
     function positions(bytes32 key)
         external
         view

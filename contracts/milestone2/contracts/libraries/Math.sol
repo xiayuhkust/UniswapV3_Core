@@ -2,7 +2,7 @@
 pragma solidity ^0.8.14;
 
 import "./FixedPoint96.sol";
-import {mulDiv} from "prb-math/Common.sol";
+import "./FullMath.sol";
 
 library Math {
     /// @notice Calculates amount0 delta between two prices
@@ -27,7 +27,7 @@ library Math {
             );
         } else {
             amount0 =
-                mulDiv(numerator1, numerator2, sqrtPriceBX96) /
+                FullMath.mulDiv(numerator1, numerator2, sqrtPriceBX96) /
                 sqrtPriceAX96;
         }
     }
@@ -49,7 +49,7 @@ library Math {
                 FixedPoint96.Q96
             );
         } else {
-            amount1 = mulDiv(
+            amount1 = FullMath.mulDiv(
                 liquidity,
                 (sqrtPriceBX96 - sqrtPriceAX96),
                 FixedPoint96.Q96
@@ -160,7 +160,7 @@ library Math {
         return
             uint160(
                 uint256(sqrtPriceX96) +
-                    mulDiv(amountIn, FixedPoint96.Q96, liquidity)
+                    FullMath.mulDiv(amountIn, FixedPoint96.Q96, liquidity)
             );
     }
 
@@ -169,7 +169,7 @@ library Math {
         uint256 b,
         uint256 denominator
     ) internal pure returns (uint256 result) {
-        result = mulDiv(a, b, denominator);
+        result = FullMath.mulDiv(a, b, denominator);
         if (mulmod(a, b, denominator) > 0) {
             require(result < type(uint256).max);
             result++;
@@ -187,5 +187,28 @@ library Math {
                 gt(mod(numerator, denominator), 0)
             )
         }
+    }
+
+    function getNextSqrtPriceFromOutput(
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        uint256 amountOut,
+        bool zeroForOne
+    ) internal pure returns (uint160) {
+        require(amountOut > 0);
+        require(liquidity > 0);
+
+        return
+            zeroForOne
+                ? getNextSqrtPriceFromAmount1RoundingDown(
+                    sqrtPriceX96,
+                    liquidity,
+                    amountOut
+                )
+                : getNextSqrtPriceFromAmount0RoundingUp(
+                    sqrtPriceX96,
+                    liquidity,
+                    amountOut
+                );
     }
 }
