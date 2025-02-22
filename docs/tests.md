@@ -1,5 +1,26 @@
 # Test Status Report
 
+## Test Execution Guide
+
+### Local Testing
+```bash
+# Run all tests
+forge test -vvv
+
+# Run specific test file
+forge test --match-contract BitMathTest -vvv
+forge test --match-contract SwapTest -vvv
+forge test --match-contract UniswapV3PoolTest -vvv
+
+# Run with gas reporting
+forge test --gas-report
+```
+
+### CI Environment
+- Profile: ci
+- RPC URL: https://rpc-beta1.turablockchain.com
+- Command: `forge test -vvv`
+
 ## Overview
 - Total Tests: 30
 - Passed: 29
