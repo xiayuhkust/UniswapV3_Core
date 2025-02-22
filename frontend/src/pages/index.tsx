@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
+import type { NextPage } from 'next';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import dynamic from 'next/dynamic';
-import type { AbstractConnector } from '@web3-react/abstract-connector';
 
 const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
   ssr: false,
@@ -13,7 +13,7 @@ const injected = new InjectedConnector({
   supportedChainIds: [1337], // Tura testnet
 });
 
-export default function Home() {
+const Home: NextPage = () => {
   const { account, activate, active, chainId } = useWeb3React();
   const [loading, setLoading] = useState(false);
 
@@ -44,4 +44,6 @@ export default function Home() {
       )}
     </div>
   );
-}
+};
+
+export default Home;
