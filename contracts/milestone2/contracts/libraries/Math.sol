@@ -191,8 +191,8 @@ library Math {
         uint128 liquidity,
         uint256 amountOut,
         bool zeroForOne
-    ) internal pure returns (uint160 sqrtPriceNextX96) {
-        sqrtPriceNextX96 = zeroForOne
+    ) internal pure returns (uint160) {
+        return zeroForOne
             ? getNextSqrtPriceFromAmount1RoundingDown(
                 sqrtPriceX96,
                 liquidity,
@@ -203,6 +203,19 @@ library Math {
                 liquidity,
                 amountOut
             );
+    }
+
+    function getNextSqrtPriceFromAmount1RoundingDown(
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        uint256 amount1
+    ) internal pure returns (uint160) {
+        uint256 quotient = SimpleQ32Math.mulDiv(
+            amount1 << FixedPoint96.RESOLUTION,
+            FixedPoint96.Q96,
+            uint256(liquidity)
+        );
+        return uint160(uint256(sqrtPriceX96) + quotient);
     }
 
     function getNextSqrtPriceFromAmount0RoundingDown(
