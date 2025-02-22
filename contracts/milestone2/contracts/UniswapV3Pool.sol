@@ -169,7 +169,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
                 slot0.sqrtPriceX96,
                 params.liquidityDelta
             );
-            liquidity = LiquidityMath.addDelta(liquidity, params.liquidityDelta);
+            liquidity = LiquidityMath.addLiquidity(liquidity, params.liquidityDelta);
         } else {
             amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
