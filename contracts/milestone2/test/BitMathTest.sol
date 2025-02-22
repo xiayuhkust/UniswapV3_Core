@@ -5,17 +5,31 @@ pragma abicoder v2;
 import "forge-std/Test.sol";
 import "../contracts/BitMath.sol";
 
+contract BitMathWrapper {
+    function callMostSignificantBit(uint256 x) external pure returns (uint8) {
+        return BitMath.mostSignificantBit(x);
+    }
+
+    function callLeastSignificantBit(uint256 x) external pure returns (uint8) {
+        return BitMath.leastSignificantBit(x);
+    }
+}
+
 contract BitMathTest is Test {
+    BitMathWrapper wrapper;
+
+    function setUp() public {
+        wrapper = new BitMathWrapper();
+    }
+
     function testMostSignificantBitZero() public {
-        vm.prank(address(this));
         vm.expectRevert("BitMath: ZERO_VALUE");
-        BitMath.mostSignificantBit(0);
+        wrapper.callMostSignificantBit(0);
     }
 
     function testLeastSignificantBitZero() public {
-        vm.prank(address(this));
         vm.expectRevert("BitMath: ZERO_VALUE");
-        BitMath.leastSignificantBit(0);
+        wrapper.callLeastSignificantBit(0);
     }
 
     function testMostSignificantBitOne() public {
