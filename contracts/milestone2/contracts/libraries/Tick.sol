@@ -95,6 +95,8 @@ library Tick {
                 info.secondsOutside = time;
             }
             info.initialized = true;
+        } else if (liquidityGrossAfter == 0) {
+            info.initialized = false;
         }
 
         info.liquidityGross = liquidityGrossAfter;
