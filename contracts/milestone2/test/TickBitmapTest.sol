@@ -15,16 +15,16 @@ contract TickBitmapTest is Test {
         int24 spacing = 10;
         
         // Initial state should be uninitialized
-        (, bool initializedBefore) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
-        assertTrue(!initializedBefore, "Tick should not be initialized initially");
+        (int24 nextBefore, bool initializedBefore) = bitmap.nextInitializedTickWithinOneWord(tick, spacing, true);
+        assertFalse(initializedBefore, "Tick should not be initialized initially");
         
         // Flip tick to initialized
         bitmap.flipTick(tick, spacing);
         
-        // Check initialization
-        (int24 nextAfter, bool initializedAfter) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
+        // Check initialization after flip
+        (int24 nextAfter, bool initializedAfter) = bitmap.nextInitializedTickWithinOneWord(tick, spacing, true);
         assertTrue(initializedAfter, "Tick should be initialized after flip");
-        assertEq(int256(nextAfter), int256(tick), "Next tick should match flipped tick");
+        assertEq(nextAfter, tick, "Next tick should match flipped tick");
     }
     
     function testNextInitializedTickWithinOneWord() public {
