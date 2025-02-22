@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
-import {mulDiv} from "prb-math/Common.sol";
+import "./SimpleQ32Math.sol";
 import "./FixedPoint96.sol";
+
+using SimpleQ32Math for uint256;
 
 library LiquidityMath {
     /// $L = \frac{\Delta x \sqrt{P_u} \sqrt{P_l}}{\Delta \sqrt{P}}$
@@ -14,13 +16,13 @@ library LiquidityMath {
         if (sqrtPriceAX96 > sqrtPriceBX96)
             (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
 
-        uint256 intermediate = mulDiv(
+        uint256 intermediate = SimpleQ32Math.mulDiv(
             sqrtPriceAX96,
             sqrtPriceBX96,
             FixedPoint96.Q96
         );
         liquidity = uint128(
-            mulDiv(amount0, intermediate, sqrtPriceBX96 - sqrtPriceAX96)
+            SimpleQ32Math.mulDiv(amount0, intermediate, sqrtPriceBX96 - sqrtPriceAX96)
         );
     }
 
@@ -34,7 +36,7 @@ library LiquidityMath {
             (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
 
         liquidity = uint128(
-            mulDiv(
+            SimpleQ32Math.mulDiv(
                 amount1,
                 FixedPoint96.Q96,
                 sqrtPriceBX96 - sqrtPriceAX96

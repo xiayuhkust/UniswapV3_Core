@@ -2,7 +2,9 @@
 pragma solidity ^0.8.14;
 
 import "./FixedPoint96.sol";
-import {mulDiv} from "prb-math/Common.sol";
+import "./SimpleQ32Math.sol";
+
+using SimpleQ32Math for uint256;
 
 library Math {
     /// @notice Calculates amount0 delta between two prices
@@ -27,7 +29,7 @@ library Math {
             );
         } else {
             amount0 =
-                mulDiv(numerator1, numerator2, sqrtPriceBX96) /
+                SimpleQ32Math.mulDiv(numerator1, numerator2, sqrtPriceBX96) /
                 sqrtPriceAX96;
         }
     }
@@ -49,7 +51,7 @@ library Math {
                 FixedPoint96.Q96
             );
         } else {
-            amount1 = mulDiv(
+            amount1 = SimpleQ32Math.mulDiv(
                 liquidity,
                 (sqrtPriceBX96 - sqrtPriceAX96),
                 FixedPoint96.Q96
@@ -160,7 +162,7 @@ library Math {
         return
             uint160(
                 uint256(sqrtPriceX96) +
-                    mulDiv(amountIn, FixedPoint96.Q96, liquidity)
+                    SimpleQ32Math.mulDiv(amountIn, FixedPoint96.Q96, liquidity)
             );
     }
 
@@ -169,7 +171,7 @@ library Math {
         uint256 b,
         uint256 denominator
     ) internal pure returns (uint256 result) {
-        result = mulDiv(a, b, denominator);
+        result = SimpleQ32Math.mulDiv(a, b, denominator);
         if (mulmod(a, b, denominator) > 0) {
             require(result < type(uint256).max);
             result++;
@@ -181,11 +183,6 @@ library Math {
         pure
         returns (uint256 result)
     {
-        assembly {
-            result := add(
-                div(numerator, denominator),
-                gt(mod(numerator, denominator), 0)
-            )
-        }
+        return SimpleQ32Math.divRoundingUp(numerator, denominator);
     }
 }
