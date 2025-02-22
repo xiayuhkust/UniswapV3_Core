@@ -18,16 +18,16 @@ Current Progress: Milestone 0
 ## Milestone 1: First Swap
 - [x] 6. Introduction
 - [x] 7. Calculating Liquidity
-- [ ] 8. Providing Liquidity
-- [ ] 9. First Swap
-- [ ] 10. Manager Contract
-- [ ] 11. Deployment
-- [ ] 12. User Interface
+- [x] 8. Providing Liquidity
+- [x] 9. First Swap
+- [x] 10. Manager Contract
+- [x] 11. Deployment
+- [x] 12. User Interface
 
 ## Milestone 2: Second Swap
-- [ ] 13. Introduction
-- [ ] 14. Output Amount Calculation
-- [ ] 15. Math in Solidity
+- [x] 13. Introduction
+- [x] 14. Output Amount Calculation
+- [x] 15. Math in Solidity
 - [ ] 16. Tick Bitmap Index
 - [ ] 17. Generalized Minting
 - [ ] 18. Generalized Swapping
