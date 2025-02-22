@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
-import "openzeppelin/utils/Base64.sol";
-import "openzeppelin/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "../interfaces/IERC20.sol";
 import "../interfaces/IUniswapV3Pool.sol";
@@ -22,8 +22,8 @@ library NFTRenderer {
         returns (string memory)
     {
         IUniswapV3Pool pool = IUniswapV3Pool(params.pool);
-        IERC20 token0 = IERC20(pool.token0());
-        IERC20 token1 = IERC20(pool.token1());
+        IERC20 token0 = IERC20(IUniswapV3Pool(pool).token0);
+        IERC20 token1 = IERC20(IUniswapV3Pool(pool).token1);
         string memory symbol0 = token0.symbol();
         string memory symbol1 = token1.symbol();
 
