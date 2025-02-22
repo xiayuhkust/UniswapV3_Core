@@ -67,7 +67,7 @@ const PoolInterface: FC = () => {
             <label className="block text-sm font-medium text-gray-700">From</label>
             <select
               value={tokenOptions.findIndex(t => t.address === token0.address)}
-              onChange={(e) => handleTokenSelect(Number(e.target.value), true)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTokenSelect(Number(e.target.value), true)}
               className="ml-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {tokenOptions.map((token, index) => (
@@ -107,7 +107,7 @@ const PoolInterface: FC = () => {
             <label className="block text-sm font-medium text-gray-700">To</label>
             <select
               value={tokenOptions.findIndex(t => t.address === token1.address)}
-              onChange={(e) => handleTokenSelect(Number(e.target.value), false)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTokenSelect(Number(e.target.value), false)}
               className="ml-2 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {tokenOptions.map((token, index) => (
