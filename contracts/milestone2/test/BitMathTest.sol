@@ -5,6 +5,7 @@ import "../contracts/BitMath.sol";
 
 contract BitMathTest {
     function mostSignificantBit(uint256 x) external pure returns (uint8 r) {
+        require(x > 0, "BitMath: ZERO_VALUE");
         return BitMath.mostSignificantBit(x);
     }
 

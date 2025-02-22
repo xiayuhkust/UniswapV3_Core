@@ -10,8 +10,11 @@ contract TestTokensTest is Test {
     IERC20 public constant TT1 = IERC20(0x3F26F01Fa9A5506c9109B5Ad15343363909fc0b9);
     IERC20 public constant TT2 = IERC20(0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122);
 
+    function setUp() public {
+        vm.createSelectFork("tura", 1_000_000);
+    }
+
     function testTokenSupplies() public {
-        vm.createSelectFork("tura");
         assertEq(WETH.totalSupply(), 1_000_000 * 10**18, "WETH supply mismatch");
         assertEq(TT1.totalSupply(), 1_000_000 * 10**18, "TT1 supply mismatch");
         assertEq(TT2.totalSupply(), 1_000_000 * 10**18, "TT2 supply mismatch");
