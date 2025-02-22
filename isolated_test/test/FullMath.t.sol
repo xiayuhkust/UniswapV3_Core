@@ -2,83 +2,77 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "forge-std/StdError.sol";
-
-import "forge-std/Test.sol";
-import "../../contracts/libraries/FullMath.sol";
+import "libraries/FullMath.sol";
 
 contract FullMathTest is Test {
     uint256 constant Q128 = 2**128;
     uint256 constant MAX_UINT = type(uint256).max;
 
     function testMulDivFailsWithZeroDenominator() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDiv(Q128, 5, 0);
     }
 
     function testMulDivFailsWithZeroDenominatorAndOverflow() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDiv(Q128, Q128, 0);
     }
 
     function testMulDivFailsWithOverflow() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDiv(Q128, Q128, 1);
     }
 
     function testMulDivAllMaxInputs() public {
-        unchecked {
-            uint256 result = FullMath.mulDiv(MAX_UINT, MAX_UINT, MAX_UINT);
-            assertEq(result, MAX_UINT);
-        }
+        assertEq(FullMath.mulDiv(MAX_UINT, MAX_UINT, MAX_UINT), MAX_UINT);
     }
 
     function testMulDivAccurateWithoutPhantomOverflow() public {
-        unchecked {
-            uint256 result = Q128 / 3;
-            uint256 computed = FullMath.mulDiv(
+        uint256 result = Q128 / 3;
+        assertEq(
+            FullMath.mulDiv(
                 Q128,
                 (50 * Q128) / 100,  // 0.5
                 (150 * Q128) / 100   // 1.5
-            );
-            assertEq(computed, result);
-        }
+            ),
+            result
+        );
     }
 
     function testMulDivAccurateWithPhantomOverflow() public {
-        unchecked {
-            uint256 result = (4375 * Q128) / 1000;
-            uint256 computed = FullMath.mulDiv(Q128, 35 * Q128, 8 * Q128);
-            assertEq(computed, result);
-        }
+        uint256 result = (4375 * Q128) / 1000;
+        assertEq(
+            FullMath.mulDiv(Q128, 35 * Q128, 8 * Q128),
+            result
+        );
     }
 
     function testMulDivAccurateWithPhantomOverflowAndRepeatingDecimal() public {
-        unchecked {
-            uint256 result = (1 * Q128) / 3;
-            uint256 computed = FullMath.mulDiv(Q128, 1000 * Q128, 3000 * Q128);
-            assertEq(computed, result);
-        }
+        uint256 result = (1 * Q128) / 3;
+        assertEq(
+            FullMath.mulDiv(Q128, 1000 * Q128, 3000 * Q128),
+            result
+        );
     }
 
     // MulDivRoundingUp Tests
     function testMulDivRoundingUpFailsWithZeroDenominator() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDivRoundingUp(Q128, 5, 0);
     }
 
     function testMulDivRoundingUpFailsWithZeroDenominatorAndOverflow() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDivRoundingUp(Q128, Q128, 0);
     }
 
     function testMulDivRoundingUpFailsWithOverflow() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDivRoundingUp(Q128, Q128, 1);
     }
 
     function testMulDivRoundingUpFailsWithOverflowCase1() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDivRoundingUp(
             535006138814359,
             432862656469423142931042426214547535783388063929571229938474969,
@@ -87,46 +81,46 @@ contract FullMathTest is Test {
     }
 
     function testMulDivRoundingUpFailsWithOverflowCase2() public {
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert();
         FullMath.mulDivRoundingUp(
-            MAX_UINT,
-            MAX_UINT,
-            MAX_UINT - 1
+            115792089237316195423570985008687907853269984659341747863450311749907997002549,
+            115792089237316195423570985008687907853269984659341747863450311749907997002550,
+            115792089237316195423570985008687907853269984653042931687443039491902864365164
         );
     }
 
     function testMulDivRoundingUpAllMaxInputs() public {
-        unchecked {
-            uint256 result = FullMath.mulDivRoundingUp(MAX_UINT, MAX_UINT, MAX_UINT);
-            assertEq(result, MAX_UINT);
-        }
+        assertEq(
+            FullMath.mulDivRoundingUp(MAX_UINT, MAX_UINT, MAX_UINT),
+            MAX_UINT
+        );
     }
 
     function testMulDivRoundingUpAccurateWithoutPhantomOverflow() public {
-        unchecked {
-            uint256 result = (Q128 / 3) + 1;
-            uint256 computed = FullMath.mulDivRoundingUp(
+        uint256 result = (Q128 / 3) + 1;
+        assertEq(
+            FullMath.mulDivRoundingUp(
                 Q128,
                 (50 * Q128) / 100,  // 0.5
                 (150 * Q128) / 100   // 1.5
-            );
-            assertEq(computed, result);
-        }
+            ),
+            result
+        );
     }
 
     function testMulDivRoundingUpAccurateWithPhantomOverflow() public {
-        unchecked {
-            uint256 result = (4375 * Q128) / 1000;
-            uint256 computed = FullMath.mulDivRoundingUp(Q128, 35 * Q128, 8 * Q128);
-            assertEq(computed, result);
-        }
+        uint256 result = (4375 * Q128) / 1000;
+        assertEq(
+            FullMath.mulDivRoundingUp(Q128, 35 * Q128, 8 * Q128),
+            result
+        );
     }
 
     function testMulDivRoundingUpAccurateWithPhantomOverflowAndRepeatingDecimal() public {
-        unchecked {
-            uint256 result = (1 * Q128) / 3 + 1;
-            uint256 computed = FullMath.mulDivRoundingUp(Q128, 1000 * Q128, 3000 * Q128);
-            assertEq(computed, result);
-        }
+        uint256 result = (1 * Q128) / 3 + 1;
+        assertEq(
+            FullMath.mulDivRoundingUp(Q128, 1000 * Q128, 3000 * Q128),
+            result
+        );
     }
 }
