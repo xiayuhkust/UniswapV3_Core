@@ -1,51 +1,26 @@
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat';
 
 async function main() {
-  // Contract addresses from deployment
-  const BITMATHLIB_ADDRESS = "0x684e34EB3BCC4c738A9dDDABAf7EBb34F75f56d7";
-  const TICKBITMAP_ADDRESS = "0x80dc2a87a680821093C24f8AfE39FD5652bc4Be4";
-  const TICKBITMAPTEST_ADDRESS = "0xf6b1DDaE29cC135D62Ad443dF63757aaeeb16cd8";
+  const provider = new ethers.providers.JsonRpcProvider('https://rpc-beta1.turablockchain.com');
   
-  console.log("Verifying deployed contracts...");
-  
-  // Connect to TickBitmapTest contract
-  const TickBitmapTest = await ethers.getContractFactory("contracts/milestone2/contracts/TickBitmapTest.sol:TickBitmapTest");
-  const tickBitmapTest = TickBitmapTest.attach(TICKBITMAPTEST_ADDRESS);
-  
-  try {
-    console.log("\nTesting tick initialization...");
-    const tick = 200;
-    const spacing = 10;
-    
-    // Check initial state
-    const [nextBefore, initializedBefore] = await tickBitmapTest.checkTick(tick, spacing);
-    console.log("Initial state:", { nextBefore, initializedBefore });
-    
-    // Flip tick
-    console.log("\nFlipping tick...");
-    const tx = await tickBitmapTest.flipTick(tick, spacing);
-    await tx.wait();
-    console.log("Tick flipped");
-    
-    // Check state after flip
-    const [nextAfter, initializedAfter] = await tickBitmapTest.checkTick(tick, spacing);
-    console.log("State after flip:", { nextAfter, initializedAfter });
-    
-    // Test next initialized tick
-    console.log("\nTesting next initialized tick...");
-    const [nextRight, initializedRight] = await tickBitmapTest.nextInitializedTickWithinOneWord(190, spacing, false);
-    console.log("Next tick to right:", { nextRight, initializedRight });
-    
-    console.log("\nVerification successful!");
-  } catch (error) {
-    console.error("Verification failed:", error);
-    process.exit(1);
+  const testTokens = {
+    WETH: '0xF0e8a104Cc6ecC7bBa4Dc89473d1C64593eA69be',
+    TT1: '0x3F26F01Fa9A5506c9109B5Ad15343363909fc0b9',
+    TT2: '0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122'
+  };
+
+  console.log('\nVerifying test token contracts...');
+  for (const [name, address] of Object.entries(testTokens)) {
+    const code = await provider.getCode(address);
+    console.log(`${name} (${address}): ${code !== '0x' ? 'Verified ✓' : 'Not Found ✗'}`);
   }
+
+  // We'll add the pool address here once deployment is complete
 }
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });
