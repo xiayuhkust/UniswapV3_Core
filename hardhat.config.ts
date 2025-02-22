@@ -1,5 +1,6 @@
-import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
+import { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -17,6 +18,11 @@ const config: HardhatUserConfig = {
     },
     local: {
       url: "http://127.0.0.1:8545"
+    },
+    tura: {
+      url: "https://rpc-beta1.turablockchain.com",
+      chainId: 1337,
+      accounts: ["ad6fb1ceb0b9dc598641ac1cef545a7882b52f5a12d7204d6074762d96a8a474"]
     }
   }
 };
