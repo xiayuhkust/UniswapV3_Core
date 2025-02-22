@@ -2,3 +2,4 @@
 forge-std/=lib/forge-std/src/
 ds-test/=lib/forge-std/lib/ds-test/src/
 reference/=contracts/milestone2/reference/
+bytes-utils/=lib/bytes-utils/contracts/
