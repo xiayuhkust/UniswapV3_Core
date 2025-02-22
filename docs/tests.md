@@ -85,3 +85,60 @@ forge test --gas-report
 - The failing test (testUpdateTickWithNegativeLiquidity) is related to tick management when removing liquidity
 - This functionality will be implemented in future milestones
 - All core milestone2 functionality tests are passing
+
+## Minimal Test Scenarios
+
+### MinimalFullMath Tests
+Location: `/isolated_test/test/MinimalFullMath.t.sol`
+Command: `forge test --match-contract MinimalFullMath -vvv`
+
+#### Passing Tests (7/9)
+- testBasicMultiplyDivide: Basic multiplication and division
+- testZeroInput: Zero input handling
+- testPhantomOverflow: Large number multiplication with phantom overflow
+- testRoundingDown: Division rounding behavior
+- testSmallNumbers: Small number arithmetic
+- testMaxDivByMax: Maximum value division
+- testMaxTimesOneOverTwo: Maximum value scaling
+
+#### Failing Tests
+1. testDivByZero
+   - Expected: Division by zero should revert with custom error
+   - Actual: Revert depth mismatch
+   - Milestone Scope: Current
+   - Status: Needs fix in error handling mechanism
+
+2. testOverflow
+   - Expected: Overflow should revert with "overflow" message
+   - Actual: Revert depth mismatch
+   - Milestone Scope: Current
+   - Status: Needs fix in error handling mechanism
+
+### MinimalPRBMath Tests
+Location: `/isolated_test/test/MinimalPRBMath.t.sol`
+Command: `forge test --match-contract MinimalPRBMath -vvv`
+
+#### Passing Tests (9/10)
+- testBasicMultiplyDivide: Basic multiplication and division
+- testZeroInput: Zero input handling
+- testEdgeCases: Edge case calculations
+- testLargeNumbers: Large number arithmetic
+- testMaxDivByMax: Maximum value division
+- testMaxTimesOneOverTwo: Maximum value scaling
+- testPhantomOverflow: Phantom overflow handling
+- testRoundingDown: Division rounding
+- testSmallNumbers: Small number arithmetic
+
+#### Failing Tests
+1. testDivByZero
+   - Expected: Division by zero should revert with custom error
+   - Actual: Revert depth mismatch
+   - Milestone Scope: Current
+   - Status: Needs fix in error handling mechanism
+
+### Common Issues
+1. Error Handling Depth
+   - Issue: All failing tests relate to revert depth in error handling
+   - Scope: Both libraries
+   - Impact: Error handling tests only, core functionality works
+   - Resolution: Needs investigation into Foundry's error handling mechanism
