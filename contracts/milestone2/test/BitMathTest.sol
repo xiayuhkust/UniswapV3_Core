@@ -4,13 +4,12 @@ pragma solidity =0.7.6;
 import "../contracts/BitMath.sol";
 
 contract BitMathTest {
-    using BitMath for uint256;
-
-    function testLeastSignificantBit(uint256 x) public pure returns (uint8) {
-        return BitMath.leastSignificantBit(x);
+    function mostSignificantBit(uint256 x) external pure returns (uint8 r) {
+        return BitMath.mostSignificantBit(x);
     }
 
-    function testMostSignificantBit(uint256 x) public pure returns (uint8) {
-        return BitMath.mostSignificantBit(x);
+    function leastSignificantBit(uint256 x) external pure returns (uint8 r) {
+        require(x > 0, "BitMath: ZERO_VALUE");
+        return BitMath.leastSignificantBit(x);
     }
 }
