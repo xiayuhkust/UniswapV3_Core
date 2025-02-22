@@ -6,7 +6,6 @@ import "./interfaces/IUniswapV3Pool.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 import "./interfaces/IUniswapV3SwapCallback.sol";
 
-import "./libraries/LowGasSafeMath.sol";
 import "./libraries/SafeCast.sol";
 import "./libraries/Tick.sol";
 import "./libraries/TickMath.sol";
@@ -27,8 +26,6 @@ contract UniswapV3Pool is IUniswapV3Pool {
     error NotEnoughLiquidity();
     error ZeroLiquidity();
 
-    using LowGasSafeMath for uint256;
-    using LowGasSafeMath for int256;
     using SafeCast for uint256;
     using SafeCast for int256;
     using SafeCast for uint128;
