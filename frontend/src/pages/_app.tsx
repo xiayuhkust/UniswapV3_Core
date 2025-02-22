@@ -4,7 +4,9 @@ import { Web3Provider } from '@ethersproject/providers';
 import '../styles/globals.css';
 
 function getLibrary(provider: any): Web3Provider {
-  return new Web3Provider(provider);
+  const library = new Web3Provider(provider);
+  library.pollingInterval = 12000;
+  return library;
 }
 
 function MyApp({ Component, pageProps }: AppProps) {

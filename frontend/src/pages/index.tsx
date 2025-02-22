@@ -13,7 +13,8 @@ const injected = new InjectedConnector({
 });
 
 export default function Home() {
-  const { account, activate, active } = useWeb3React<Web3Provider>();
+  const context = useWeb3React<Web3Provider>();
+  const { account, connector, activate, active } = context;
   const [loading, setLoading] = useState(false);
 
   const connectWallet = async () => {
