@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
-import "../reference/lib/Math.sol";
-import "../reference/lib/FixedPoint96.sol";
+import "prb-math/Common.sol";
+import "./FixedPoint96.sol";
+
+using PRBMath for uint256;
 
 library LiquidityMath {
     /// $L = \frac{\Delta x \sqrt{P_u} \sqrt{P_l}}{\Delta \sqrt{P}}$
