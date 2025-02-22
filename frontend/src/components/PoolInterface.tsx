@@ -3,7 +3,8 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 
 export default function PoolInterface() {
-  const { account, library } = useWeb3React<Web3Provider>();
+  const context = useWeb3React<Web3Provider>();
+  const { account, library } = context;
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
   const [loading, setLoading] = useState(false);
