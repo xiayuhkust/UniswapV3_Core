@@ -1,7 +1,11 @@
-import { AbstractConnector } from '@web3-react/abstract-connector';
-import { Web3Provider } from '@ethersproject/providers';
+/// <reference types="react" />
 
 declare module '@web3-react/core' {
+  export interface AbstractConnector {
+    activate: () => Promise<void>;
+    deactivate: () => void;
+  }
+
   export interface Web3ReactContextInterface<T = any> {
     activate: (connector: AbstractConnector) => Promise<void>;
     active: boolean;
@@ -12,10 +16,20 @@ declare module '@web3-react/core' {
     error?: Error;
     connector?: AbstractConnector;
   }
+
+  export function useWeb3React<T = any>(): Web3ReactContextInterface<T>;
+  export class Web3ReactProvider extends React.Component<{
+    getLibrary: (provider: any) => any;
+    children: React.ReactNode;
+  }> {}
 }
 
-declare module 'react' {
-  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-    className?: string;
+declare module '@web3-react/injected-connector' {
+  import { AbstractConnector } from '@web3-react/core';
+  
+  export class InjectedConnector implements AbstractConnector {
+    constructor(kwargs: { supportedChainIds: number[] });
+    public activate(): Promise<void>;
+    public deactivate(): void;
   }
 }

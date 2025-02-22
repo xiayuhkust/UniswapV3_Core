@@ -2,8 +2,8 @@ import { Contract } from '@ethersproject/contracts';
 import { Web3Provider } from '@ethersproject/providers';
 
 // ABI imports will be added later when we have the final contract ABIs
-const POOL_ABI = [];
-const TOKEN_ABI = [];
+const POOL_ABI: any[] = [];
+const TOKEN_ABI: any[] = [];
 
 export const TURA_CHAIN_ID = 1337;
 export const RPC_URL = 'https://rpc-beta1.turablockchain.com';
