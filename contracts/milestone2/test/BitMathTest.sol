@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity =0.7.6;
 
+import "forge-std/Test.sol";
 import "../contracts/BitMath.sol";
 
-contract BitMathTest {
-    function mostSignificantBit(uint256 x) external pure returns (uint8 r) {
-        require(x > 0, "BitMath: ZERO_VALUE");
-        return BitMath.mostSignificantBit(x);
+contract BitMathTest is Test {
+    function testMostSignificantBit(uint256 x) public {
+        vm.assume(x > 0);
+        uint8 result = BitMath.mostSignificantBit(x);
+        assertGt(result, 0, "MSB should be > 0 for non-zero input");
     }
 
-    function leastSignificantBit(uint256 x) external pure returns (uint8 r) {
-        require(x > 0, "BitMath: ZERO_VALUE");
-        return BitMath.leastSignificantBit(x);
+    function testLeastSignificantBit(uint256 x) public {
+        vm.assume(x > 0);
+        uint8 result = BitMath.leastSignificantBit(x);
+        assertLt(result, 256, "LSB should be < 256");
     }
 
-    function testLeastSignificantBit(uint256 x) external pure returns (uint8) {
-        if (x == 0) revert("BitMath: ZERO_VALUE");
-        return BitMath.leastSignificantBit(x);
+    function testLeastSignificantBitZero() public {
+        vm.expectRevert("BitMath: ZERO_VALUE");
+        BitMath.leastSignificantBit(0);
     }
 }

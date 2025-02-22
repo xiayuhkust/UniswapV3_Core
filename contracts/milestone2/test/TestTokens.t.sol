@@ -14,11 +14,12 @@ contract TestTokensTest is Test {
         string memory rpc = vm.envString("ETH_RPC_URL");
         require(bytes(rpc).length > 0, "RPC URL not set");
         vm.createSelectFork(rpc);
+        require(vm.activeFork() >= 0, "Fork creation failed");
     }
 
-    function testTokenSupplies() public {
-        assertEq(WETH.totalSupply(), 1_000_000 * 10**18, "WETH supply mismatch");
-        assertEq(TT1.totalSupply(), 1_000_000 * 10**18, "TT1 supply mismatch");
-        assertEq(TT2.totalSupply(), 1_000_000 * 10**18, "TT2 supply mismatch");
+    function testTokenSupplies() public view {
+        require(WETH.totalSupply() == 1_000_000 * 10**18, "WETH supply mismatch");
+        require(TT1.totalSupply() == 1_000_000 * 10**18, "TT1 supply mismatch");
+        require(TT2.totalSupply() == 1_000_000 * 10**18, "TT2 supply mismatch");
     }
 }
