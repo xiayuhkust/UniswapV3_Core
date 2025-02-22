@@ -5,6 +5,8 @@ declare module 'react' {
   export type ChangeEvent<T> = React.ChangeEvent<T>;
   export const useState: typeof React.useState;
   export const useCallback: typeof React.useCallback;
+  export type ReactNode = React.ReactNode;
+
   interface CSSProperties {
     [key: string]: any;
   }
@@ -14,7 +16,7 @@ declare module 'react' {
   }
 
   interface DOMAttributes<T> {
-    children?: React.ReactNode;
+    children?: ReactNode;
     dangerouslySetInnerHTML?: {
       __html: string;
     };
@@ -38,6 +40,15 @@ declare module 'react' {
     disabled?: boolean;
   }
 
+  interface SelectHTMLAttributes<T> extends HTMLAttributes<T> {
+    value?: string | number;
+    onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  }
+
+  interface OptionHTMLAttributes<T> extends HTMLAttributes<T> {
+    value?: string | number;
+  }
+
   interface JSX {
     IntrinsicElements: {
       div: HTMLAttributes<HTMLDivElement>;
@@ -47,6 +58,8 @@ declare module 'react' {
       h1: HTMLAttributes<HTMLHeadingElement>;
       h2: HTMLAttributes<HTMLHeadingElement>;
       p: HTMLAttributes<HTMLParagraphElement>;
+      select: SelectHTMLAttributes<HTMLSelectElement>;
+      option: OptionHTMLAttributes<HTMLOptionElement>;
     };
   }
 }

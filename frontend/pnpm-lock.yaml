@@ -21,12 +21,9 @@ importers:
       '@ethersproject/providers':
         specifier: ^5.7.2
         version: 5.7.2
-      '@types/next':
-        specifier: ^9.0.0
-        version: 9.0.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@types/node':
-        specifier: ^17.0.45
-        version: 17.0.45
+        specifier: ^16.11.7
+        version: 16.11.7
       '@types/react':
         specifier: ^17.0.39
         version: 17.0.39
@@ -252,12 +249,8 @@ packages:
   '@swc/helpers@0.4.11':
     resolution: {integrity: sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==}
 
-  '@types/next@9.0.0':
-    resolution: {integrity: sha512-gnBXM8rP1mnCgT1uE2z8SnpFTKRWReJlhbZLZkOLq/CH1ifvTNwjIVtXvsywTy1dwVklf+y/MB0Eh6FOa94yrg==}
-    deprecated: This is a stub types definition. next provides its own type definitions, so you do not need this installed.
-
-  '@types/node@17.0.45':
-    resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
+  '@types/node@16.11.7':
+    resolution: {integrity: sha512-QB5D2sqfSjCmTuWcBWyJ+/44bcjO7VbjSbOE0ucoVbAsSNQc4Lt6QkgkVXkTDwkL4z/beecZNDvVX15D4P8Jbw==}
 
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
@@ -1087,19 +1080,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/next@9.0.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
-    dependencies:
-      next: 12.3.4(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-      - fibers
-      - node-sass
-      - react
-      - react-dom
-      - sass
-
-  '@types/node@17.0.45': {}
+  '@types/node@16.11.7': {}
 
   '@types/prop-types@15.7.14': {}
 

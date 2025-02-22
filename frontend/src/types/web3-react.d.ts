@@ -2,7 +2,11 @@
 
 declare module '@web3-react/core' {
   export interface AbstractConnector {
-    activate: () => Promise<void>;
+    activate: () => Promise<{
+      provider: any;
+      chainId: number;
+      account: string;
+    }>;
     deactivate: () => void;
   }
 
@@ -27,9 +31,13 @@ declare module '@web3-react/core' {
 declare module '@web3-react/injected-connector' {
   import { AbstractConnector } from '@web3-react/core';
   
-  export class InjectedConnector implements AbstractConnector {
+  export class InjectedConnector extends AbstractConnector {
     constructor(kwargs: { supportedChainIds: number[] });
-    public activate(): Promise<void>;
+    public activate(): Promise<{
+      provider: any;
+      chainId: number;
+      account: string;
+    }>;
     public deactivate(): void;
   }
 }
