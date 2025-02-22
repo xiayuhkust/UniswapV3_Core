@@ -7,19 +7,13 @@ import "../contracts/BitMath.sol";
 
 contract BitMathTest is Test {
     function testMostSignificantBitZero() public {
-        try BitMath.mostSignificantBit(0) {
-            fail("Expected revert on zero input");
-        } catch Error(string memory error) {
-            assertEq(error, "BitMath: ZERO_VALUE");
-        }
+        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        BitMath.mostSignificantBit(0);
     }
 
     function testLeastSignificantBitZero() public {
-        try BitMath.leastSignificantBit(0) {
-            fail("Expected revert on zero input");
-        } catch Error(string memory error) {
-            assertEq(error, "BitMath: ZERO_VALUE");
-        }
+        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        BitMath.leastSignificantBit(0);
     }
 
     function testMostSignificantBitOne() public {
