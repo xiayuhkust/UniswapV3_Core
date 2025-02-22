@@ -8,9 +8,7 @@ const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
   ssr: false,
 });
 
-const injected = new InjectedConnector({
-  supportedChainIds: [1337], // Tura testnet
-});
+// Injector is defined in _app.tsx
 
 export default function Home() {
   const context = useWeb3React<Web3Provider>();

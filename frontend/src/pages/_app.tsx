@@ -1,25 +1,22 @@
 import type { AppProps } from 'next/app';
 import { Web3ReactProvider } from '@web3-react/core';
-import { providers } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers';
+import { InjectedConnector } from '@web3-react/injected-connector';
 import '../styles/globals.css';
 
-type GetLibrary = (provider?: any) => providers.Web3Provider;
-
-declare module '@web3-react/core' {
-  interface Web3ReactProviderProps {
-    getLibrary: GetLibrary;
-  }
-}
-
-const getLibrary: GetLibrary = (provider) => {
-  const library = new providers.Web3Provider(provider);
+function getLibrary(provider: any): Web3Provider {
+  const library = new Web3Provider(provider);
   library.pollingInterval = 12000;
   return library;
 }
 
+const injected = new InjectedConnector({
+  supportedChainIds: [1337], // Tura testnet
+});
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
+    <Web3ReactProvider getLibrary={getLibrary} connectors={[injected]}>
       <Component {...pageProps} />
     </Web3ReactProvider>
   );
