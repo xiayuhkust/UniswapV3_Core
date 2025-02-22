@@ -2,7 +2,6 @@
 pragma solidity =0.7.6;
 
 import "./Math.sol";
-import "./FixedPoint96.sol";
 
 library SwapMath {
     function computeSwapStep(
@@ -22,7 +21,7 @@ library SwapMath {
         )
     {
         bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
-        uint256 amountRemainingLessFee = Math.mulDiv(
+        uint256 amountRemainingLessFee = PRBMath.mulDiv(
             amountRemaining,
             1e6 - fee,
             1e6
