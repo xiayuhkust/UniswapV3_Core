@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.14;
 
-import "prb-math/Core.sol";
-
+import {mulDiv} from "prb-math/Common.sol";
 import "./FixedPoint128.sol";
 import "./LiquidityMath.sol";
-
-using PRBMath for uint256;
 
 library Position {
     struct Info {
@@ -35,14 +32,14 @@ library Position {
         uint256 feeGrowthInside1X128
     ) internal {
         uint128 tokensOwed0 = uint128(
-            PRBMath.mulDiv(
+            mulDiv(
                 feeGrowthInside0X128 - self.feeGrowthInside0LastX128,
                 self.liquidity,
                 FixedPoint128.Q128
             )
         );
         uint128 tokensOwed1 = uint128(
-            PRBMath.mulDiv(
+            mulDiv(
                 feeGrowthInside1X128 - self.feeGrowthInside1LastX128,
                 self.liquidity,
                 FixedPoint128.Q128
