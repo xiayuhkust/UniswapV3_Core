@@ -71,7 +71,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
         );
 
         // Update position
-        position.update(amount.toInt128(), 0, 0);
+        position.update(amount.toInt128FromUint(), 0, 0);
 
         // TODO: Calculate token amounts and collect fees
         // This will be implemented in subsequent steps
