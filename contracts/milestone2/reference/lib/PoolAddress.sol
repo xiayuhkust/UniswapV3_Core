@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
-import "../UniswapV3Pool.sol";
+import "../../contracts/UniswapV3Pool.sol";
 
 library PoolAddress {
     function computeAddress(
