@@ -2,108 +2,89 @@
 pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ConstantProductPool {
-    using SafeMath for uint256;
-
     address public token0;
     address public token1;
+
     uint256 public reserve0;
     uint256 public reserve1;
-    uint256 private constant SWAP_FEE = 997; // 0.3% fee
-    uint256 private constant FEE_DENOMINATOR = 1000;
 
-    event Swap(
-        address indexed sender,
-        uint256 amount0In,
-        uint256 amount1In,
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address indexed to
-    );
+    uint256 public totalSupply;
+    mapping(address => uint256) public balanceOf;
 
     constructor(address _token0, address _token1) {
-        require(_token0 != address(0), "CP: ZERO_ADDRESS");
-        require(_token1 != address(0), "CP: ZERO_ADDRESS");
-        require(_token0 != _token1, "CP: IDENTICAL_ADDRESSES");
         token0 = _token0;
         token1 = _token1;
     }
 
-    function initialize(uint256 amount0, uint256 amount1) external {
-        require(reserve0 == 0 && reserve1 == 0, "CP: ALREADY_INITIALIZED");
-        require(amount0 > 0 && amount1 > 0, "CP: INSUFFICIENT_LIQUIDITY");
-        
-        // Transfer tokens to the pool
+    function _mint(address to, uint256 amount) private {
+        balanceOf[to] += amount;
+        totalSupply += amount;
+    }
+
+    function _burn(address from, uint256 amount) private {
+        balanceOf[from] -= amount;
+        totalSupply -= amount;
+    }
+
+    function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+        require(tokenIn == token0 || tokenIn == token1, "Invalid token");
+
+        bool isToken0 = tokenIn == token0;
+        (IERC20 tokenInERC20, IERC20 tokenOutERC20, uint256 reserveIn, uint256 reserveOut) = isToken0
+            ? (IERC20(token0), IERC20(token1), reserve0, reserve1)
+            : (IERC20(token1), IERC20(token0), reserve1, reserve0);
+
+        tokenInERC20.transferFrom(msg.sender, address(this), amountIn);
+
+        uint256 amountInWithFee = amountIn * 997;
+        amountOut = (amountInWithFee * reserveOut) / (reserveIn * 1000 + amountInWithFee);
+
+        tokenOutERC20.transfer(msg.sender, amountOut);
+
+        _update(
+            isToken0 ? tokenInERC20.balanceOf(address(this)) : reserve0,
+            isToken0 ? reserve1 : tokenInERC20.balanceOf(address(this))
+        );
+    }
+
+    function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 shares) {
         IERC20(token0).transferFrom(msg.sender, address(this), amount0);
         IERC20(token1).transferFrom(msg.sender, address(this), amount1);
-        
-        reserve0 = amount0;
-        reserve1 = amount1;
-    }
 
-    function getReserves() public view returns (uint256, uint256) {
-        return (reserve0, reserve1);
-    }
+        if (reserve0 > 0 || reserve1 > 0) {
+            require(reserve0 * amount1 == reserve1 * amount0, "x/y != dx/dy");
+        }
 
-    function swap(uint256 amount0In, uint256 amount1In, address to) external {
-        require(amount0In > 0 || amount1In > 0, "CP: INSUFFICIENT_INPUT_AMOUNT");
-        require(to != address(0), "CP: INVALID_TO");
-
-        (uint256 _reserve0, uint256 _reserve1) = getReserves();
-        require(_reserve0 > 0 && _reserve1 > 0, "CP: INSUFFICIENT_LIQUIDITY");
-        
-        uint256 balance0 = IERC20(token0).balanceOf(address(this));
-        uint256 balance1 = IERC20(token1).balanceOf(address(this));
-        
-        uint256 amount0Out = 0;
-        uint256 amount1Out = 0;
-
-        if (amount0In > 0) {
-            require(amount0In <= balance0.mul(2), "CP: INSUFFICIENT_LIQUIDITY");
-            amount1Out = getOutputAmount(amount0In, _reserve0, _reserve1);
+        if (totalSupply == 0) {
+            shares = amount0 * amount1;
         } else {
-            require(amount1In <= balance1.mul(2), "CP: INSUFFICIENT_LIQUIDITY");
-            amount0Out = getOutputAmount(amount1In, _reserve1, _reserve0);
+            shares = (amount0 * totalSupply) / reserve0;
         }
+        require(shares > 0, "shares = 0");
+        _mint(msg.sender, shares);
 
-        require(amount0Out > 0 || amount1Out > 0, "CP: INSUFFICIENT_OUTPUT_AMOUNT");
-
-        if (amount0Out > 0) {
-            require(amount0Out < _reserve0, "CP: INSUFFICIENT_LIQUIDITY");
-            IERC20(token0).transfer(to, amount0Out);
-        }
-        if (amount1Out > 0) {
-            require(amount1Out < _reserve1, "CP: INSUFFICIENT_LIQUIDITY");
-            IERC20(token1).transfer(to, amount1Out);
-        }
-
-        balance0 = IERC20(token0).balanceOf(address(this));
-        balance1 = IERC20(token1).balanceOf(address(this));
-
-        _update(balance0, balance1);
-
-        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+        _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)));
     }
 
-    function getOutputAmount(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) public pure returns (uint256) {
-        require(amountIn > 0, "CP: INSUFFICIENT_INPUT_AMOUNT");
-        require(reserveIn > 0 && reserveOut > 0, "CP: INSUFFICIENT_LIQUIDITY");
+    function removeLiquidity(uint256 shares) external returns (uint256 amount0, uint256 amount1) {
+        uint256 bal0 = IERC20(token0).balanceOf(address(this));
+        uint256 bal1 = IERC20(token1).balanceOf(address(this));
 
-        uint256 amountInWithFee = amountIn.mul(SWAP_FEE);
-        uint256 numerator = amountInWithFee.mul(reserveOut);
-        uint256 denominator = reserveIn.mul(FEE_DENOMINATOR).add(amountInWithFee);
+        amount0 = (shares * bal0) / totalSupply;
+        amount1 = (shares * bal1) / totalSupply;
+        require(amount0 > 0 && amount1 > 0, "amount0 or amount1 = 0");
 
-        return numerator.div(denominator);
+        _burn(msg.sender, shares);
+        _update(bal0 - amount0, bal1 - amount1);
+
+        IERC20(token0).transfer(msg.sender, amount0);
+        IERC20(token1).transfer(msg.sender, amount1);
     }
 
-    function _update(uint256 balance0, uint256 balance1) private {
-        reserve0 = balance0;
-        reserve1 = balance1;
+    function _update(uint256 _reserve0, uint256 _reserve1) private {
+        reserve0 = _reserve0;
+        reserve1 = _reserve1;
     }
 }
