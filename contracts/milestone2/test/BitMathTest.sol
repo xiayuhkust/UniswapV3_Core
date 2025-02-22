@@ -13,4 +13,9 @@ contract BitMathTest {
         require(x > 0, "BitMath: ZERO_VALUE");
         return BitMath.leastSignificantBit(x);
     }
+
+    function testLeastSignificantBit(uint256 x) external pure returns (uint8) {
+        if (x == 0) revert("BitMath: ZERO_VALUE");
+        return BitMath.leastSignificantBit(x);
+    }
 }
