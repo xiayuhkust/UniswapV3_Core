@@ -3,7 +3,7 @@ pragma solidity =0.7.6;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
-import "../contracts/LiquidityMath.sol";
+import "../contracts/libraries/LiquidityMath.sol";
 
 contract LiquidityMathTest is Test {
     function testAddLiquidity() public {

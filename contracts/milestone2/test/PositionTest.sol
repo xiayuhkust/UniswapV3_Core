@@ -3,7 +3,7 @@ pragma solidity =0.7.6;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
-import "../contracts/Position.sol";
+import "../contracts/libraries/Position.sol";
 
 contract PositionTest is Test {
     using Position for mapping(bytes32 => Position.Info);
