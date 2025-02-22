@@ -90,7 +90,7 @@ contract SwapTest is Test {
         int256 amountSpecified = 1000;
         uint160 sqrtPriceLimitX96 = TickMath.MIN_SQRT_RATIO;
 
-        vm.expectRevert("SPL");
+        vm.expectRevert(bytes("SPL"));
         pool.swap(
             owner,
             zeroForOne,
