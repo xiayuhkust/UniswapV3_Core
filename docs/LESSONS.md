@@ -37,31 +37,31 @@ Current Progress: Milestone 0
 ## Milestone 3: Cross-Tick Swaps
 - [x] 21. Introduction
 - [x] 22. Different Price Ranges
-- [ ] 23. Cross-Tick Swaps
-- [ ] 24. Slippage Protection
-- [ ] 25. Liquidity Calculation
-- [ ] 26. A Little Bit More on Fixed-Point Numbers
-- [ ] 27. Flash Loans
-- [ ] 28. User Interface
+- [x] 23. Cross-Tick Swaps
+- [x] 24. Slippage Protection
+- [x] 25. Liquidity Calculation
+- [x] 26. A Little Bit More on Fixed-Point Numbers
+- [x] 27. Flash Loans
+- [x] 28. User Interface
 
 ## Milestone 4: Multi-pool Swaps
-- [ ] 29. Introduction
-- [ ] 30. Factory Contract
-- [ ] 31. Swap Path
-- [ ] 32. Multi-Pool Swaps
-- [ ] 33. User Interface
-- [ ] 34. Tick Rounding
+- [x] 29. Introduction
+- [x] 30. Factory Contract
+- [x] 31. Swap Path
+- [x] 32. Multi-Pool Swaps
+- [x] 33. User Interface
+- [x] 34. Tick Rounding
 
 ## Milestone 5: Fees and Price Oracle
-- [ ] 35. Introduction
-- [ ] 36. Swap Fees
-- [ ] 37. Flash Loan Fees
-- [ ] 38. Protocol Fees
-- [ ] 39. Price Oracle
-- [ ] 40. User Interface
+- [x] 35. Introduction
+- [x] 36. Swap Fees
+- [x] 37. Flash Loan Fees
+- [x] 38. Protocol Fees
+- [x] 39. Price Oracle
+- [x] 40. User Interface
 
 ## Milestone 6: NFT Positions
-- [ ] 41. Introduction
-- [ ] 42. Overview of ERC721
-- [ ] 43. NFT Manager
-- [ ] 44. NFT Renderer
+- [x] 41. Introduction
+- [x] 42. Overview of ERC721
+- [x] 43. NFT Manager
+- [x] 44. NFT Renderer
