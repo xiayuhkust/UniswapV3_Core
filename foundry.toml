@@ -19,3 +19,6 @@ seed = 1234
 runs = 256
 depth = 15
 fail_on_revert = false
+
+[[profile.default.rpc_endpoints]]
+tura = "https://rpc-beta1.turablockchain.com"
