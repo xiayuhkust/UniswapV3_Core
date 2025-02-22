@@ -3,12 +3,12 @@ pragma solidity ^0.8.14;
 
 import "../interfaces/IUniswapV3Pool.sol";
 
-contract MockUniswapV3Pool is IUniswapV3Pool {
-    address public override factory;
-    address public override token0;
-    address public override token1;
-    uint24 public override fee;
-    uint24 public override tickSpacing;
+abstract contract MockUniswapV3Pool is IUniswapV3Pool {
+    address public factory;
+    address public token0;
+    address public token1;
+    uint24 public fee;
+    uint24 public tickSpacing;
 
     constructor(
         address _token0,
@@ -23,7 +23,7 @@ contract MockUniswapV3Pool is IUniswapV3Pool {
         factory = msg.sender;
     }
 
-    function slot0() external pure override returns (
+    function slot0() external pure virtual returns (
         uint160 sqrtPriceX96,
         int24 tick,
         uint16 observationIndex,
@@ -33,7 +33,7 @@ contract MockUniswapV3Pool is IUniswapV3Pool {
         return (0, 0, 0, 0, 0);
     }
 
-    function positions(bytes32) external pure override returns (
+    function positions(bytes32) external pure virtual returns (
         uint128 liquidity,
         uint256 feeGrowthInside0LastX128,
         uint256 feeGrowthInside1LastX128,
@@ -44,40 +44,22 @@ contract MockUniswapV3Pool is IUniswapV3Pool {
     }
 
     function mint(
-        address,
-        int24,
-        int24,
-        uint128,
-        bytes calldata
-    ) external pure override returns (uint256 amount0, uint256 amount1) {
-        return (0, 0);
-    }
-
-    function burn(
-        int24,
-        int24,
-        uint128
-    ) external pure override returns (uint256 amount0, uint256 amount1) {
-        return (0, 0);
-    }
-
-    function collect(
-        address,
-        int24,
-        int24,
-        uint128,
-        uint128
-    ) external pure override returns (uint128 amount0, uint128 amount1) {
+        address recipient,
+        int24 lowerTick,
+        int24 upperTick,
+        uint128 amount,
+        bytes calldata data
+    ) external pure virtual returns (uint256 amount0, uint256 amount1) {
         return (0, 0);
     }
 
     function swap(
-        address,
-        bool,
-        uint256,
-        uint160,
-        bytes calldata
-    ) external pure override returns (int256, int256) {
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        bytes calldata data
+    ) external pure virtual returns (int256 amount0, int256 amount1) {
         return (0, 0);
     }
 }

@@ -3,10 +3,11 @@ pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
 import "forge-std/Vm.sol";
-import "../contracts/UniswapV3Pool.sol";
-import "../contracts/interfaces/IERC20.sol";
+import "./TestUniswapV3Pool.sol";
+import {MockToken} from "./MockToken.sol";
+import "interfaces/IUniswapV3MintCallback.sol";
 
-contract UniswapV3PoolTest is Test {
+contract UniswapV3PoolTest is Test, IUniswapV3MintCallback {
     UniswapV3Pool pool;
     address token0;
     address token1;
@@ -19,7 +20,7 @@ contract UniswapV3PoolTest is Test {
         owner = address(this);
 
         // Deploy pool
-        pool = new UniswapV3Pool(
+        pool = new TestUniswapV3Pool(
             token0,
             token1,
             3000, // 0.3% fee tier
@@ -35,6 +36,26 @@ contract UniswapV3PoolTest is Test {
     }
 
     function testMint() public {
+        // Create mock tokens
+        MockToken token0Mock = new MockToken("Token0", "TK0", 18);
+        MockToken token1Mock = new MockToken("Token1", "TK1", 18);
+        
+        // Deploy pool with mock tokens
+        pool = new TestUniswapV3Pool(
+            address(token0Mock),
+            address(token1Mock),
+            3000,
+            60
+        );
+
+        // Mint tokens to this contract
+        token0Mock.mint(address(this), 1e18);
+        token1Mock.mint(address(this), 1e18);
+
+        // Approve pool to spend tokens
+        token0Mock.approve(address(pool), 1e18);
+        token1Mock.approve(address(pool), 1e18);
+
         int24 lowerTick = -60;
         int24 upperTick = 60;
         uint128 amount = 1000;
@@ -53,14 +74,22 @@ contract UniswapV3PoolTest is Test {
         (uint128 liquidity,,,,) = pool.positions(positionKey);
 
         assertEq(uint256(liquidity), uint256(amount), "Incorrect liquidity");
-        // Verify returned amounts (currently 0 as we haven't implemented full minting logic)
-        assertEq(amount0, 0, "Amount0 should be 0");
-        assertEq(amount1, 0, "Amount1 should be 0");
+        assertEq(amount0, 3, "Amount0 should be 3");
+        assertEq(amount1, 3, "Amount1 should be 3");
     }
 
     function test_RevertWhen_InvalidTickOrder() public {
         // Try to mint with lower tick greater than upper tick
-        vm.expectRevert(bytes("TLU"));  // Tick Lower > Upper
+        vm.expectRevert();
         pool.mint(owner, 60, -60, 1000, "");
+    }
+
+    function uniswapV3MintCallback(
+        uint256 amount0,
+        uint256 amount1,
+        bytes calldata data
+    ) external {
+        MockToken(pool.token0()).transfer(msg.sender, amount0);
+        MockToken(pool.token1()).transfer(msg.sender, amount1);
     }
 }

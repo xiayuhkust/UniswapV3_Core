@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.14;
 
-import "./interfaces/IERC20.sol";
-import "./interfaces/IUniswapV3Pool.sol";
-import "./interfaces/IUniswapV3MintCallback.sol";
-import "./interfaces/IUniswapV3SwapCallback.sol";
+import "interfaces/IERC20.sol";
+import "interfaces/IUniswapV3Pool.sol";
+import "interfaces/IUniswapV3MintCallback.sol";
+import "interfaces/IUniswapV3SwapCallback.sol";
 
 import "./libraries/SafeCast.sol";
 import "./libraries/Tick.sol";
@@ -17,7 +17,7 @@ import "./libraries/FixedPoint96.sol";
 import "./libraries/LiquidityMath.sol";
 import "./libraries/TickBitmap.sol";
 
-contract UniswapV3Pool is IUniswapV3Pool {
+abstract contract UniswapV3Pool is IUniswapV3Pool {
     error AlreadyInitialized();
     error FlashLoanNotPaid();
     error InsufficientInputAmount();
@@ -35,12 +35,12 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using TickBitmap for mapping(int16 => uint256);
 
     // Pool tokens
-    address public immutable override token0;
-    address public immutable override token1;
+    address public immutable token0;
+    address public immutable token1;
     uint24 public immutable fee;
 
     // Tick spacing
-    int24 public immutable tickSpacing;
+    uint24 public immutable tickSpacing;
 
     // Fee growth
     uint256 public feeGrowthGlobal0X128;
@@ -70,18 +70,33 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
     /// @dev The 0th storage slot in the pool stores many values, and is exposed as a single method to save gas
     /// when accessed externally.
-    Slot0 public slot0;
+    function slot0() external view returns (
+        uint160 sqrtPriceX96,
+        int24 tick,
+        uint16 observationIndex,
+        uint16 observationCardinality,
+        uint16 observationCardinalityNext
+    ) {
+        return (
+            slot0_.sqrtPriceX96,
+            slot0_.tick,
+            slot0_.observationIndex,
+            slot0_.observationCardinality,
+            slot0_.observationCardinalityNext
+        );
+    }
+    Slot0 private slot0_;
     uint128 public liquidity;
 
     // Positions
     mapping(bytes32 => Position.Info) public positions;
     mapping(int24 => Tick.Info) public ticks;
 
-    function balance0() internal returns (uint256) {
+    function balance0() internal view returns (uint256) {
         return IERC20(token0).balanceOf(address(this));
     }
 
-    function balance1() internal returns (uint256) {
+    function balance1() internal view returns (uint256) {
         return IERC20(token1).balanceOf(address(this));
     }
 
@@ -101,7 +116,6 @@ contract UniswapV3Pool is IUniswapV3Pool {
         )
     {
         // gas optimizations
-        Slot0 memory slot0_ = slot0;
         uint256 feeGrowthGlobal0X128_ = feeGrowthGlobal0X128;
         uint256 feeGrowthGlobal1X128_ = feeGrowthGlobal1X128;
 
@@ -130,10 +144,10 @@ contract UniswapV3Pool is IUniswapV3Pool {
         );
 
         if (flippedLower) {
-            tickBitmap.flipTick(params.lowerTick, tickSpacing);
+            tickBitmap.flipTick(params.lowerTick, int24(tickSpacing));
         }
         if (flippedUpper) {
-            tickBitmap.flipTick(params.upperTick, tickSpacing);
+            tickBitmap.flipTick(params.upperTick, int24(tickSpacing));
         }
 
         (uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128) = ticks
@@ -151,21 +165,21 @@ contract UniswapV3Pool is IUniswapV3Pool {
             feeGrowthInside1X128
         );
 
-        if (slot0.tick < params.lowerTick) {
+        if (slot0_.tick < params.lowerTick) {
             amount0 = Math.calcAmount0Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
             );
-        } else if (slot0.tick < params.upperTick) {
+        } else if (slot0_.tick < params.upperTick) {
             amount0 = Math.calcAmount0Delta(
-                slot0.sqrtPriceX96,
+                slot0_.sqrtPriceX96,
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
             );
             amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
-                slot0.sqrtPriceX96,
+                slot0_.sqrtPriceX96,
                 params.liquidityDelta
             );
             liquidity = LiquidityMath.addLiquidity(liquidity, params.liquidityDelta);
@@ -187,9 +201,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
         token0 = _token0;
         token1 = _token1;
         fee = _fee;
-        tickSpacing = _tickSpacing;
+        tickSpacing = uint24(_tickSpacing);
 
-        slot0 = Slot0({
+        slot0_ = Slot0({
             sqrtPriceX96: uint160(1 << 96),
             tick: 0,
             observationIndex: 0,
@@ -261,7 +275,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
         bytes calldata data
     ) external override returns (int256 amount0, int256 amount1) {
         require(amountSpecified != 0, "AS");
-        Slot0 memory slot0Start = slot0;
+        Slot0 memory slot0Start = slot0_;
 
         require(slot0Start.unlocked, "LOK");
         require(
@@ -273,7 +287,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
             "SPL"
         );
 
-        slot0.unlocked = false;
+        slot0_.unlocked = false;
 
         SwapState memory state = SwapState({
             amountSpecifiedRemaining: amountSpecified,
@@ -313,9 +327,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
         state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
 
         if (state.tick != slot0Start.tick) {
-            (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
+            (slot0_.sqrtPriceX96, slot0_.tick) = (state.sqrtPriceX96, state.tick);
         } else {
-            slot0.sqrtPriceX96 = state.sqrtPriceX96;
+            slot0_.sqrtPriceX96 = state.sqrtPriceX96;
         }
 
         (amount0, amount1) = zeroForOne
@@ -328,16 +342,16 @@ contract UniswapV3Pool is IUniswapV3Pool {
                 amountSpecified - state.amountSpecifiedRemaining
             );
 
-        slot0.unlocked = true;
+        slot0_.unlocked = true;
 
         emit Swap(
             msg.sender,
             recipient,
             amount0,
             amount1,
-            slot0.sqrtPriceX96,
+            slot0_.sqrtPriceX96,
             state.liquidity,
-            slot0.tick
+            slot0_.tick
         );
     }
 

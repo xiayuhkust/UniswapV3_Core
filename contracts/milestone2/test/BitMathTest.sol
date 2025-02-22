@@ -2,7 +2,7 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../contracts/BitMath.sol";
+import "../contracts/libraries/BitMath.sol";
 
 contract BitMathWrapper {
     function callMostSignificantBit(uint256 x) external pure returns (uint8) {

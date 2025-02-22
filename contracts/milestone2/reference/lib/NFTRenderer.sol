@@ -4,8 +4,8 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-import "../../contracts/interfaces/IERC20.sol";
-import "../../contracts/interfaces/IUniswapV3Pool.sol";
+import "interfaces/IERC20.sol";
+import "interfaces/IUniswapV3Pool.sol";
 
 library NFTRenderer {
     struct RenderParams {

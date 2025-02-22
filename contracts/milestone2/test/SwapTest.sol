@@ -2,8 +2,8 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../contracts/UniswapV3Pool.sol";
-import "../contracts/interfaces/IERC20.sol";
+import "./TestUniswapV3Pool.sol";
+import "interfaces/IERC20.sol";
 
 contract SwapTest is Test {
     UniswapV3Pool pool;
@@ -18,7 +18,7 @@ contract SwapTest is Test {
         owner = address(this);
 
         // Deploy pool
-        pool = new UniswapV3Pool(
+        pool = new TestUniswapV3Pool(
             token0,
             token1,
             3000, // 0.3% fee tier

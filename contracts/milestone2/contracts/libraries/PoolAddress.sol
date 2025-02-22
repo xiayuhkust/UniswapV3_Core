@@ -20,7 +20,7 @@ library PoolAddress {
                             hex"ff",
                             factory,
                             keccak256(abi.encodePacked(token0, token1, fee)),
-                            keccak256(type(UniswapV3Pool).creationCode)
+                            bytes32(0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f) // init code hash
                         )
                     )
                 )
