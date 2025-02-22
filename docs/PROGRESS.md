@@ -5,10 +5,10 @@
   - [x] BitMath library implementation
   - [x] TickBitmap contract implementation
   - [x] Test coverage
-- [ ] Generalized Minting (In Progress)
-  - [ ] Position management
-  - [ ] Liquidity tracking
-  - [ ] Fee calculation
+- [x] Generalized Minting
+  - [x] Position management
+  - [x] Liquidity tracking
+  - [x] Fee calculation
 - [ ] Generalized Swapping
   - [ ] Price calculation
   - [ ] Swap execution

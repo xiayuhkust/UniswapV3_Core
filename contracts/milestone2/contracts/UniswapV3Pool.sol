@@ -15,7 +15,8 @@ import "./libraries/Oracle.sol";
 import "./libraries/Math.sol";
 import "./libraries/SwapMath.sol";
 import "./libraries/FixedPoint96.sol";
-import "./libraries/Tick.sol";
+import "./libraries/LiquidityMath.sol";
+import "./libraries/TickBitmap.sol";
 
 contract UniswapV3Pool is IUniswapV3Pool {
     using LowGasSafeMath for uint256;
@@ -27,6 +28,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
     using SwapMath for uint256;
+    using TickBitmap for mapping(int16 => uint256);
 
     // Pool tokens
     address public immutable token0;
@@ -35,6 +37,13 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
     // Tick spacing
     int24 public immutable tickSpacing;
+
+    // Fee growth
+    uint256 public feeGrowthGlobal0X128;
+    uint256 public feeGrowthGlobal1X128;
+
+    // Tick bitmap
+    mapping(int16 => uint256) public tickBitmap;
 
     // Pool state
     struct Slot0 {
@@ -63,6 +72,89 @@ contract UniswapV3Pool is IUniswapV3Pool {
     // Positions
     mapping(bytes32 => Position.Info) public positions;
     mapping(int24 => Tick.Info) public ticks;
+
+    function balance0() internal returns (uint256) {
+        return IERC20(token0).balanceOf(address(this));
+    }
+
+    function balance1() internal returns (uint256) {
+        return IERC20(token1).balanceOf(address(this));
+    }
+
+    struct ModifyPositionParams {
+        address owner;
+        int24 lowerTick;
+        int24 upperTick;
+        int128 liquidityDelta;
+    }
+
+    function _modifyPosition(ModifyPositionParams memory params)
+        internal
+        returns (
+            Position.Info storage position,
+            int256 amount0,
+            int256 amount1
+        )
+    {
+        position = positions.get(
+            params.owner,
+            params.lowerTick,
+            params.upperTick
+        );
+
+        bool flippedLower = ticks.update(
+            params.lowerTick,
+            slot0.tick,
+            params.liquidityDelta,
+            feeGrowthGlobal0X128,
+            feeGrowthGlobal1X128,
+            false
+        );
+
+        bool flippedUpper = ticks.update(
+            params.upperTick,
+            slot0.tick,
+            params.liquidityDelta,
+            feeGrowthGlobal0X128,
+            feeGrowthGlobal1X128,
+            true
+        );
+
+        if (flippedLower) {
+            tickBitmap.flipTick(params.lowerTick, tickSpacing);
+        }
+        if (flippedUpper) {
+            tickBitmap.flipTick(params.upperTick, tickSpacing);
+        }
+
+        position.update(params.liquidityDelta, 0, 0);
+
+        if (slot0.tick < params.lowerTick) {
+            amount0 = Math.getAmount0Delta(
+                TickMath.getSqrtRatioAtTick(params.lowerTick),
+                TickMath.getSqrtRatioAtTick(params.upperTick),
+                params.liquidityDelta
+            );
+        } else if (slot0.tick < params.upperTick) {
+            amount0 = Math.getAmount0Delta(
+                slot0.sqrtPriceX96,
+                TickMath.getSqrtRatioAtTick(params.upperTick),
+                params.liquidityDelta
+            );
+            amount1 = Math.getAmount1Delta(
+                TickMath.getSqrtRatioAtTick(params.lowerTick),
+                slot0.sqrtPriceX96,
+                params.liquidityDelta
+            );
+            liquidity = LiquidityMath.addDelta(liquidity, params.liquidityDelta);
+        } else {
+            amount1 = Math.getAmount1Delta(
+                TickMath.getSqrtRatioAtTick(params.lowerTick),
+                TickMath.getSqrtRatioAtTick(params.upperTick),
+                params.liquidityDelta
+            );
+        }
+    }
 
     constructor(
         address _token0,
@@ -93,22 +185,48 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint128 amount,
         bytes calldata data
     ) external override returns (uint256 amount0, uint256 amount1) {
-        require(lowerTick < upperTick, "TLU");
-        require(lowerTick >= TickMath.MIN_TICK, "TLM");
-        require(upperTick <= TickMath.MAX_TICK, "TUM");
+        if (amount == 0) revert ZeroLiquidity();
+        if (lowerTick >= upperTick) revert InvalidTickRange();
+        if (lowerTick < TickMath.MIN_TICK || upperTick > TickMath.MAX_TICK)
+            revert InvalidTickRange();
 
-        // Get position
-        Position.Info storage position = positions.get(
-            recipient,
-            lowerTick,
-            upperTick
+        (, int256 amount0Int, int256 amount1Int) = _modifyPosition(
+            ModifyPositionParams({
+                owner: recipient,
+                lowerTick: lowerTick,
+                upperTick: upperTick,
+                liquidityDelta: int128(amount)
+            })
         );
 
-        // Update position
-        position.update(amount.toInt128FromUint(), 0, 0);
+        amount0 = uint256(amount0Int);
+        amount1 = uint256(amount1Int);
 
-        // Update liquidity
-        liquidity = LowGasSafeMath.add128(liquidity, amount);
+        uint256 balance0Before;
+        uint256 balance1Before;
+        if (amount0 > 0) balance0Before = balance0();
+        if (amount1 > 0) balance1Before = balance1();
+
+        IUniswapV3MintCallback(msg.sender).uniswapV3MintCallback(
+            amount0,
+            amount1,
+            data
+        );
+
+        if (amount0 > 0 && balance0Before + amount0 > balance0())
+            revert InsufficientInputAmount();
+        if (amount1 > 0 && balance1Before + amount1 > balance1())
+            revert InsufficientInputAmount();
+
+        emit Mint(
+            msg.sender,
+            recipient,
+            lowerTick,
+            upperTick,
+            amount,
+            amount0,
+            amount1
+        );
 
         emit Mint(
             msg.sender,
