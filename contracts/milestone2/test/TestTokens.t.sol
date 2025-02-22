@@ -15,7 +15,7 @@ contract TestTokensTest is Test {
     }
 
     function testTokenSupplies() public {
-        // Skip token supply tests for now
+        // Skip token supply tests temporarily until we can debug the RPC issues
         assertTrue(true);
     }
 }
