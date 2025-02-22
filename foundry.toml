@@ -3,7 +3,13 @@ src = 'contracts'
 out = 'out'
 libs = ['lib']
 solc = "0.7.6"
-eth_rpc_url = "https://rpc-beta1.turablockchain.com"
+optimizer = true
+optimizer_runs = 200
 
 [profile.ci]
-verbosity = 3
+verbosity = 4
+fuzz_runs = 1000
+ffi = false
+
+[rpc_endpoints]
+tura = "https://rpc-beta1.turablockchain.com"
