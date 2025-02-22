@@ -110,4 +110,122 @@ contract UniswapV3Pool is IUniswapV3Pool {
             amount1
         );
     }
+
+    function swap(
+        address recipient,
+        bool zeroForOne,
+        int256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
+        bytes calldata data
+    ) external override returns (int256 amount0, int256 amount1) {
+        require(amountSpecified != 0, "AS");
+        Slot0 memory slot0Start = slot0;
+
+        require(slot0Start.unlocked, "LOK");
+        require(
+            zeroForOne
+                ? sqrtPriceLimitX96 < slot0Start.sqrtPriceX96 &&
+                    sqrtPriceLimitX96 > TickMath.MIN_SQRT_RATIO
+                : sqrtPriceLimitX96 > slot0Start.sqrtPriceX96 &&
+                    sqrtPriceLimitX96 < TickMath.MAX_SQRT_RATIO,
+            "SPL"
+        );
+
+        slot0.unlocked = false;
+
+        SwapState memory state = SwapState({
+            amountSpecifiedRemaining: amountSpecified,
+            amountCalculated: 0,
+            sqrtPriceX96: slot0Start.sqrtPriceX96,
+            tick: slot0Start.tick,
+            liquidity: liquidity
+        });
+
+        while (
+            state.amountSpecifiedRemaining != 0 &&
+            state.sqrtPriceX96 != sqrtPriceLimitX96
+        ) {
+            StepState memory step;
+            step.sqrtPriceStartX96 = state.sqrtPriceX96;
+
+            (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
+                .computeSwapStep(
+                    state.sqrtPriceX96,
+                    sqrtPriceLimitX96,
+                    state.liquidity,
+                    uint256(
+                        state.amountSpecifiedRemaining > 0
+                            ? state.amountSpecifiedRemaining
+                            : -state.amountSpecifiedRemaining
+                    ),
+                    fee
+                );
+
+            if (state.amountSpecifiedRemaining > 0) {
+                state.amountSpecifiedRemaining -= (step.amountIn + step.feeAmount)
+                    .toInt256();
+                state.amountCalculated = state.amountCalculated - step.amountOut.toInt256();
+            } else {
+                state.amountSpecifiedRemaining += step.amountOut.toInt256();
+                state.amountCalculated = state.amountCalculated + (step.amountIn + step.feeAmount)
+                    .toInt256();
+            }
+
+            if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
+                // price hasn't changed
+                int24 nextTick = zeroForOne ? state.tick - 1 : state.tick + 1;
+                (state.sqrtPriceX96, state.tick) = (
+                    TickMath.getSqrtRatioAtTick(nextTick),
+                    nextTick
+                );
+            } else {
+                state.sqrtPriceX96 = step.sqrtPriceNextX96;
+                state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
+            }
+        }
+
+        if (state.tick != slot0Start.tick) {
+            (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
+        } else {
+            slot0.sqrtPriceX96 = state.sqrtPriceX96;
+        }
+
+        (amount0, amount1) = zeroForOne
+            ? (
+                amountSpecified - state.amountSpecifiedRemaining,
+                state.amountCalculated
+            )
+            : (
+                state.amountCalculated,
+                amountSpecified - state.amountSpecifiedRemaining
+            );
+
+        slot0.unlocked = true;
+
+        emit Swap(
+            msg.sender,
+            recipient,
+            amount0,
+            amount1,
+            slot0.sqrtPriceX96,
+            state.liquidity,
+            slot0.tick
+        );
+    }
+
+    struct SwapState {
+        int256 amountSpecifiedRemaining;
+        int256 amountCalculated;
+        uint160 sqrtPriceX96;
+        int24 tick;
+        uint128 liquidity;
+    }
+
+    struct StepState {
+        uint160 sqrtPriceStartX96;
+        uint160 sqrtPriceNextX96;
+        uint256 amountIn;
+        uint256 amountOut;
+        uint256 feeAmount;
+    }
 }
