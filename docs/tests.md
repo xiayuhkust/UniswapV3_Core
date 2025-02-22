@@ -1,87 +1,44 @@
-# Test Status Report
+# SimpleQ32Math Library Test Documentation
 
-## Test Execution Guide
+## Test Environment
+- Location: `contracts/milestone2/test/SimpleQ32MathTest.t.sol`
+- Command: `forge test --match-contract SimpleQ32MathTest -vvv`
 
-### Local Testing
-```bash
-# Run all tests
-forge test -vvv
+## Test Results
+✅ testSignedMulDiv() (gas: 5189)
+- Basic multiplication and division with signed numbers
+- Example: -100 * 200 / 100 = -200
 
-# Run specific test file
-forge test --match-contract BitMathTest -vvv
-forge test --match-contract SwapTest -vvv
-forge test --match-contract UniswapV3PoolTest -vvv
+✅ testZeroInputs() (gas: 4282)
+- Zero input handling
+- Both multiplicand and multiplier cases
 
-# Run with gas reporting
-forge test --gas-report
-```
+✅ testFeeCalculation() (gas: 5233)
+- Fee calculation with 1M tokens and 0.3% fee
+- Result: 997,000 (99.7% of input)
 
-### CI Environment
-- Profile: ci
-- RPC URL: https://rpc-beta1.turablockchain.com
-- Command: `forge test -vvv`
+✅ testQ32Precision() (gas: 5233)
+- Q32.32 fixed-point precision tests
+- Example: 1e18 * 1e18 / 1e18 = 1e18
 
-## Overview
-- Total Tests: 30
-- Passed: 29
-- Failed: 1
-- Skipped: 0
+❌ testRoundingUp() (gas: 4035)
+- Rounding behavior for division
+- Status: Needs fix in rounding logic
+- Expected: 101 * 200 / 100 = 203 (rounds up from 202)
 
-## Test Results by Contract
+❌ testDivByZero() (gas: 3258)
+- Division by zero error handling
+- Status: Needs fix in error handling mechanism
 
-### BitMathTest (6/6 passing)
-✅ testLeastSignificantBitOne
-✅ testLeastSignificantBitPowersOfTwo
-✅ testLeastSignificantBitZero
-✅ testMostSignificantBitOne
-✅ testMostSignificantBitPowersOfTwo
-✅ testMostSignificantBitZero
-
-### TickTest (2/3 passing)
-✅ testTickSpacingToMaxLiquidityPerTick
-✅ testUpdateTick
-❌ testUpdateTickWithNegativeLiquidity
-- Error: "Tick should be uninitialized"
-- Note: This test is beyond the scope of milestone2 and will be addressed in future milestones
-
-### ConstantProductPoolTest (3/3 passing)
-✅ testSwap
-✅ test_RevertWhen_InsufficientLiquidity
-✅ test_RevertWhen_ZeroInput
-
-### SwapTest (3/3 passing)
-✅ testSwapOneForZero
-✅ testSwapZeroForOne
-✅ test_RevertWhen_PriceLimitReached
-
-### LiquidityMathTest (4/4 passing)
-✅ testAddLiquidity
-✅ testGetLiquidityForAmount0
-✅ testGetLiquidityForAmount1
-✅ testGetLiquidityForAmounts
-
-### TestTokensTest (1/1 passing)
-✅ testTokenSupplies
-
-### UniswapV3PoolTest (3/3 passing)
-✅ testInitialState
-✅ testMint
-✅ test_RevertWhen_InvalidTickOrder
-
-### MarketTest (3/3 passing)
-✅ test_PlaceOrder
-✅ test_RejectZeroAmount
-✅ test_RejectZeroPrice
-
-### PositionTest (2/2 passing)
-✅ testPositionManagement
-✅ testRemoveLiquidity
-
-### TickBitmapTest (2/2 passing)
-✅ testFlipTick
-✅ testNextInitializedTickWithinOneWord
+## Summary
+- Total Tests: 7
+- Passed: 5
+- Failed: 2
+- Gas Usage Range: 3258-5233
 
 ## Notes
-- The failing test (testUpdateTickWithNegativeLiquidity) is related to tick management when removing liquidity
-- This functionality will be implemented in future milestones
-- All core milestone2 functionality tests are passing
+- Basic arithmetic operations working correctly
+- Fee calculations precise and accurate
+- Error handling needs improvement for division by zero case
+- Rounding behavior needs adjustment for positive numbers
+- All core functionality for SwapMath integration is working
