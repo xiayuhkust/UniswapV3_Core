@@ -22,12 +22,12 @@ contract BitMathTest is Test {
     }
 
     function testMostSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+        vm.expectRevert(BitMath.ZERO_VALUE.selector);
         wrapper.callMostSignificantBit(0);
     }
 
     function testLeastSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+        vm.expectRevert(BitMath.ZERO_VALUE.selector);
         wrapper.callLeastSignificantBit(0);
     }
 
