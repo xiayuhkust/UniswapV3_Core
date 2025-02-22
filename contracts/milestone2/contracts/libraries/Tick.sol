@@ -70,10 +70,16 @@ library Tick {
         Tick.Info storage info = self[tick];
 
         uint128 liquidityGrossBefore = info.liquidityGross;
-        uint128 liquidityGrossAfter = LowGasSafeMath.add128(
-            liquidityGrossBefore,
-            uint128(liquidityDelta < 0 ? -liquidityDelta : liquidityDelta)
-        );
+        uint128 liquidityGrossAfter;
+        if (liquidityDelta < 0) {
+            require(liquidityGrossBefore >= uint128(-liquidityDelta), "LO");
+            liquidityGrossAfter = liquidityGrossBefore - uint128(-liquidityDelta);
+        } else {
+            liquidityGrossAfter = LowGasSafeMath.add128(
+                liquidityGrossBefore,
+                uint128(liquidityDelta)
+            );
+        }
 
         require(liquidityGrossAfter <= maxLiquidity, "LO");
 
