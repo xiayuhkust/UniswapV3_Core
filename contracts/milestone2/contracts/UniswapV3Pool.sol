@@ -19,6 +19,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using LowGasSafeMath for int256;
     using SafeCast for uint256;
     using SafeCast for int256;
+    using SafeCast for uint128;
     using Tick for mapping(int24 => Tick.Info);
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
