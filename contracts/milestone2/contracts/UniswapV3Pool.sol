@@ -74,6 +74,16 @@ contract UniswapV3Pool is IUniswapV3Pool {
         token1 = _token1;
         fee = _fee;
         tickSpacing = _tickSpacing;
+
+        slot0 = Slot0({
+            sqrtPriceX96: uint160(1 << 96),
+            tick: 0,
+            observationIndex: 0,
+            observationCardinality: 0,
+            observationCardinalityNext: 0,
+            feeProtocol: 0,
+            unlocked: true
+        });
     }
 
     function mint(
