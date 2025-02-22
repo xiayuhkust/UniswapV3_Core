@@ -1,4 +1,5 @@
-import React, { useState, useCallback, FC, ChangeEvent } from 'react';
+import React, { useState, useCallback } from 'react';
+import type { FC, ChangeEvent } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { TEST_TOKENS } from '../utils/contracts';
