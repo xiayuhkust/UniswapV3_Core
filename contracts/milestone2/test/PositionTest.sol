@@ -17,8 +17,8 @@ contract PositionTest is Test {
         // Get initial position
         Position.Info storage position = positions.get(owner, lowerTick, upperTick);
         assertEq(uint256(position.liquidity), uint256(0), "Initial liquidity should be 0");
-        assertEq(position.tokensOwed0, 0, "Initial tokensOwed0 should be 0");
-        assertEq(position.tokensOwed1, 0, "Initial tokensOwed1 should be 0");
+        assertEq(uint256(position.tokensOwed0), uint256(0), "Initial tokensOwed0 should be 0");
+        assertEq(uint256(position.tokensOwed1), uint256(0), "Initial tokensOwed1 should be 0");
 
         // Update position with new liquidity
         int128 liquidityDelta = 1000;
@@ -35,8 +35,8 @@ contract PositionTest is Test {
         feeGrowthInside1X128 = 4;
 
         position.update(0, feeGrowthInside0X128, feeGrowthInside1X128);
-        assertTrue(position.tokensOwed0 > 0, "Tokens owed 0 should increase");
-        assertTrue(position.tokensOwed1 > 0, "Tokens owed 1 should increase");
+        assertTrue(uint256(position.tokensOwed0) > 0, "Tokens owed 0 should increase");
+        assertTrue(uint256(position.tokensOwed1) > 0, "Tokens owed 1 should increase");
     }
 
     function testRemoveLiquidity() public {
