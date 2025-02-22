@@ -2,7 +2,7 @@
 pragma solidity ^0.8.14;
 
 import "./FixedPoint96.sol";
-import "prb-math/sd59x18/Math.sol" as PRBMath;
+import {mulDiv} from "prb-math/Common.sol";
 
 library Math {
     /// @notice Calculates amount0 delta between two prices
@@ -27,7 +27,7 @@ library Math {
             );
         } else {
             amount0 =
-                PRBMath.mulDiv(numerator1, numerator2, sqrtPriceBX96) /
+                mulDiv(numerator1, numerator2, sqrtPriceBX96) /
                 sqrtPriceAX96;
         }
     }
@@ -49,7 +49,7 @@ library Math {
                 FixedPoint96.Q96
             );
         } else {
-            amount1 = PRBMath.mulDiv(
+            amount1 = mulDiv(
                 liquidity,
                 (sqrtPriceBX96 - sqrtPriceAX96),
                 FixedPoint96.Q96
@@ -160,7 +160,7 @@ library Math {
         return
             uint160(
                 uint256(sqrtPriceX96) +
-                    PRBMath.mulDiv(amountIn, FixedPoint96.Q96, liquidity)
+                    mulDiv(amountIn, FixedPoint96.Q96, liquidity)
             );
     }
 
@@ -169,7 +169,7 @@ library Math {
         uint256 b,
         uint256 denominator
     ) internal pure returns (uint256 result) {
-        result = PRBMath.mulDiv(a, b, denominator);
+        result = mulDiv(a, b, denominator);
         if (mulmod(a, b, denominator) > 0) {
             require(result < type(uint256).max);
             result++;
