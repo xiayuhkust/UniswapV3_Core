@@ -37,7 +37,7 @@ contract SwapTest is Test {
 
         // Perform swap
         bool zeroForOne = true;
-        int256 amountSpecified = 1000;
+        int256 amountSpecified = -1000; // Negative means exact input
         uint160 sqrtPriceLimitX96 = TickMath.MIN_SQRT_RATIO + 1;
 
         (int256 amount0, int256 amount1) = pool.swap(
@@ -48,8 +48,8 @@ contract SwapTest is Test {
             ""
         );
 
-        assertTrue(amount0 > 0, "Amount0 should be positive");
-        assertTrue(amount1 < 0, "Amount1 should be negative");
+        assertTrue(amount0 < 0, "Amount0 should be negative (spent)");
+        assertTrue(amount1 > 0, "Amount1 should be positive (received)");
     }
 
     function testSwapOneForZero() public {
@@ -62,7 +62,7 @@ contract SwapTest is Test {
 
         // Perform swap
         bool zeroForOne = false;
-        int256 amountSpecified = 1000;
+        int256 amountSpecified = -1000; // Negative means exact input
         uint160 sqrtPriceLimitX96 = TickMath.MAX_SQRT_RATIO - 1;
 
         (int256 amount0, int256 amount1) = pool.swap(
@@ -73,8 +73,8 @@ contract SwapTest is Test {
             ""
         );
 
-        assertTrue(amount0 < 0, "Amount0 should be negative");
-        assertTrue(amount1 > 0, "Amount1 should be positive");
+        assertTrue(amount0 > 0, "Amount0 should be positive (received)");
+        assertTrue(amount1 < 0, "Amount1 should be negative (spent)");
     }
 
     function test_RevertWhen_PriceLimitReached() public {
@@ -87,10 +87,10 @@ contract SwapTest is Test {
 
         // Try to swap with invalid price limit
         bool zeroForOne = true;
-        int256 amountSpecified = 1000;
+        int256 amountSpecified = -1000;
         uint160 sqrtPriceLimitX96 = TickMath.MIN_SQRT_RATIO;
 
-        vm.expectRevert(bytes("LOK"));
+        vm.expectRevert(bytes("SPL"));
         pool.swap(
             owner,
             zeroForOne,

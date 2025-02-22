@@ -107,8 +107,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
         // Update position
         position.update(amount.toInt128FromUint(), 0, 0);
 
-        // TODO: Calculate token amounts and collect fees
-        // This will be implemented in subsequent steps
+        // Update liquidity
+        liquidity = LowGasSafeMath.add128(liquidity, amount);
 
         emit Mint(
             msg.sender,
@@ -148,7 +148,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
             amountCalculated: 0,
             sqrtPriceX96: slot0Start.sqrtPriceX96,
             tick: slot0Start.tick,
-            liquidity: liquidity
+            liquidity: liquidity,
+            feeGrowthGlobalX128: 0
         });
 
         while (
@@ -229,6 +230,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint160 sqrtPriceX96;
         int24 tick;
         uint128 liquidity;
+        uint256 feeGrowthGlobalX128;
     }
 
     struct StepState {
