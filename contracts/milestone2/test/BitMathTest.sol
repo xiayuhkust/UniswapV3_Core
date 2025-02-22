@@ -10,19 +10,23 @@ contract BitMathTest is Test {
         assertEq(BitMath.mostSignificantBit(1), 0);
         assertEq(BitMath.mostSignificantBit(2), 1);
         assertEq(BitMath.mostSignificantBit(4), 2);
+        assertEq(BitMath.mostSignificantBit(8), 3);
+        assertEq(BitMath.mostSignificantBit(16), 4);
     }
 
     function testLeastSignificantBit() public {
         assertEq(BitMath.leastSignificantBit(1), 0);
         assertEq(BitMath.leastSignificantBit(2), 1);
         assertEq(BitMath.leastSignificantBit(4), 2);
+        assertEq(BitMath.leastSignificantBit(8), 3);
+        assertEq(BitMath.leastSignificantBit(16), 4);
     }
 
     function testZeroInput() public {
-        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        vm.expectRevert("BitMath: ZERO_VALUE");
         BitMath.leastSignificantBit(0);
 
-        vm.expectRevert(bytes("BitMath: ZERO_VALUE"));
+        vm.expectRevert("BitMath: ZERO_VALUE");
         BitMath.mostSignificantBit(0);
     }
 }
