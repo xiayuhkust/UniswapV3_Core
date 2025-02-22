@@ -3,7 +3,13 @@ import { Web3ReactProvider } from '@web3-react/core';
 import { providers } from 'ethers';
 import '../styles/globals.css';
 
-type GetLibrary = (provider: any) => providers.Web3Provider;
+type GetLibrary = (provider?: any) => providers.Web3Provider;
+
+declare module '@web3-react/core' {
+  interface Web3ReactProviderProps {
+    getLibrary: GetLibrary;
+  }
+}
 
 const getLibrary: GetLibrary = (provider) => {
   const library = new providers.Web3Provider(provider);

@@ -3,6 +3,14 @@ import { providers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import type { Web3ReactContextInterface } from '@web3-react/core/dist/types';
+
+declare module '@web3-react/core' {
+  interface Web3ContextType<T extends providers.Provider = providers.Provider>
+    extends Web3ReactContextInterface<T> {
+    activate: (connector: InjectedConnector) => Promise<void>;
+    active: boolean;
+  }
+}
 import dynamic from 'next/dynamic';
 
 const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
