@@ -218,26 +218,6 @@ library Math {
         return uint160(uint256(sqrtPriceX96) + quotient);
     }
 
-    function getNextSqrtPriceFromAmount0RoundingDown(
-        uint160 sqrtPriceX96,
-        uint128 liquidity,
-        uint256 amount0
-    ) internal pure returns (uint160) {
-        uint256 numerator = uint256(liquidity) << FixedPoint96.RESOLUTION;
-        uint256 product = amount0 * sqrtPriceX96;
-
-        // If product doesn't overflow, use the precise formula
-        if (product / amount0 == sqrtPriceX96) {
-            uint256 denominator = numerator + product;
-            if (denominator >= numerator) {
-                return uint160(SimpleQ32Math.mulDiv(numerator, sqrtPriceX96, denominator));
-            }
-        }
-
-        // If product overflows, use less precise formula
-        return uint160(numerator / (numerator / sqrtPriceX96 + amount0));
-    }
-
     function getNextSqrtPriceFromAmount0RoundingUp(
         uint160 sqrtPriceX96,
         uint128 liquidity,
