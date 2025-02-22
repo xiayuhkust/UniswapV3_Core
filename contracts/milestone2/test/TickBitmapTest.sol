@@ -16,15 +16,15 @@ contract TickBitmapTest is Test {
         
         // Initial state should be uninitialized
         (int24 nextBefore, bool initializedBefore) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
-        assertEq(initializedBefore, false, "Tick should not be initialized initially");
+        assertTrue(!initializedBefore, "Tick should not be initialized initially");
         
         // Flip tick to initialized
         bitmap.flipTick(tick, spacing);
         
         // Check initialization
         (int24 nextAfter, bool initializedAfter) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
-        assertEq(initializedAfter, true, "Tick should be initialized after flip");
-        assertEq(nextAfter, tick, "Next tick should match flipped tick");
+        assertTrue(initializedAfter, "Tick should be initialized after flip");
+        assertEq(int256(nextAfter), int256(tick), "Next tick should match flipped tick");
     }
     
     function testNextInitializedTickWithinOneWord() public {
@@ -37,12 +37,12 @@ contract TickBitmapTest is Test {
         
         // Test searching right
         (int24 nextRight, bool initializedRight) = bitmap.nextInitializedTickWithinOneWord(190, spacing, false);
-        assertEq(nextRight, 200, "Next tick to right should be 200");
-        assertEq(initializedRight, true, "Should find initialized tick");
+        assertEq(int256(nextRight), int256(200), "Next tick to right should be 200");
+        assertTrue(initializedRight, "Should find initialized tick");
         
         // Test searching left
         (int24 nextLeft, bool initializedLeft) = bitmap.nextInitializedTickWithinOneWord(500, spacing, true);
-        assertEq(nextLeft, 400, "Next tick to left should be 400");
-        assertEq(initializedLeft, true, "Should find initialized tick");
+        assertEq(int256(nextLeft), int256(400), "Next tick to left should be 400");
+        assertTrue(initializedLeft, "Should find initialized tick");
     }
 }
