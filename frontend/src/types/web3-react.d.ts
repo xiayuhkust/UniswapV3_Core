@@ -10,5 +10,12 @@ declare module '@web3-react/core' {
     library?: T;
     deactivate: () => void;
     error?: Error;
+    connector?: AbstractConnector;
+  }
+}
+
+declare module 'react' {
+  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    className?: string;
   }
 }
