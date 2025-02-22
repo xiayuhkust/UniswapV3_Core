@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Web3Provider } from '@ethersproject/providers';
+import { providers } from 'ethers';
 import { useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
+import type { Web3ReactContextInterface } from '@web3-react/core/dist/types';
 import dynamic from 'next/dynamic';
 
 const PoolInterface = dynamic(() => import('../components/PoolInterface'), {
@@ -13,8 +14,7 @@ const injected = new InjectedConnector({
 });
 
 export default function Home() {
-  const context = useWeb3React<Web3Provider>();
-  const { account, connector, activate, active } = context;
+  const { account, activate, active } = useWeb3React<providers.Web3Provider>();
   const [loading, setLoading] = useState(false);
 
   const connectWallet = async () => {
