@@ -71,7 +71,12 @@ library Position {
         uint256 y,
         uint256 z
     ) internal pure returns (uint256) {
-        require(z > 0);
-        return (x * y) / z;
+        require(z > 0, "MD");
+        uint256 a = x / z;
+        uint256 b = x % z;
+        uint256 c = y / z;
+        uint256 d = y % z;
+
+        return a * y + b * c + (b * d) / z;
     }
 }
