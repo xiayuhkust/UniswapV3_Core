@@ -152,48 +152,33 @@ contract UniswapV3Pool is IUniswapV3Pool {
             feeGrowthGlobalX128: 0
         });
 
-        while (
-            state.amountSpecifiedRemaining != 0 &&
-            state.sqrtPriceX96 != sqrtPriceLimitX96
-        ) {
-            StepState memory step;
-            step.sqrtPriceStartX96 = state.sqrtPriceX96;
+        // Single step swap for initial implementation
+        StepState memory step;
+        step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
-            (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
-                .computeSwapStep(
-                    state.sqrtPriceX96,
-                    sqrtPriceLimitX96,
-                    state.liquidity,
-                    uint256(
-                        state.amountSpecifiedRemaining > 0
-                            ? state.amountSpecifiedRemaining
-                            : -state.amountSpecifiedRemaining
-                    ),
-                    fee
-                );
+        (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
+            .computeSwapStep(
+                state.sqrtPriceX96,
+                sqrtPriceLimitX96,
+                state.liquidity,
+                uint256(
+                    state.amountSpecifiedRemaining > 0
+                        ? state.amountSpecifiedRemaining
+                        : -state.amountSpecifiedRemaining
+                ),
+                fee
+            );
 
-            if (state.amountSpecifiedRemaining > 0) {
-                state.amountSpecifiedRemaining -= (step.amountIn + step.feeAmount)
-                    .toInt256();
-                state.amountCalculated = state.amountCalculated - step.amountOut.toInt256();
-            } else {
-                state.amountSpecifiedRemaining += step.amountOut.toInt256();
-                state.amountCalculated = state.amountCalculated + (step.amountIn + step.feeAmount)
-                    .toInt256();
-            }
-
-            if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
-                // price hasn't changed
-                int24 nextTick = zeroForOne ? state.tick - 1 : state.tick + 1;
-                (state.sqrtPriceX96, state.tick) = (
-                    TickMath.getSqrtRatioAtTick(nextTick),
-                    nextTick
-                );
-            } else {
-                state.sqrtPriceX96 = step.sqrtPriceNextX96;
-                state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
-            }
+        if (amountSpecified < 0) {
+            state.amountSpecifiedRemaining += step.amountIn.toInt256();
+            state.amountCalculated = step.amountOut.toInt256();
+        } else {
+            state.amountSpecifiedRemaining -= step.amountOut.toInt256();
+            state.amountCalculated = -(step.amountIn.toInt256());
         }
+
+        state.sqrtPriceX96 = step.sqrtPriceNextX96;
+        state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
 
         if (state.tick != slot0Start.tick) {
             (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);

@@ -48,8 +48,8 @@ contract SwapTest is Test {
             ""
         );
 
-        assertTrue(amount0 < 0, "Amount0 should be negative (spent)");
-        assertTrue(amount1 > 0, "Amount1 should be positive (received)");
+        assertLt(amount0, 0, "Amount0 should be negative (spent)");
+        assertGt(amount1, 0, "Amount1 should be positive (received)");
     }
 
     function testSwapOneForZero() public {
@@ -73,8 +73,8 @@ contract SwapTest is Test {
             ""
         );
 
-        assertTrue(amount0 > 0, "Amount0 should be positive (received)");
-        assertTrue(amount1 < 0, "Amount1 should be negative (spent)");
+        assertGt(amount0, 0, "Amount0 should be positive (received)");
+        assertLt(amount1, 0, "Amount1 should be negative (spent)");
     }
 
     function test_RevertWhen_PriceLimitReached() public {
