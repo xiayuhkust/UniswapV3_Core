@@ -6,6 +6,7 @@ import "./SafeCast.sol";
 
 library Tick {
     using LowGasSafeMath for int256;
+    using LowGasSafeMath for int128;
     using SafeCast for int256;
 
     struct Info {
@@ -94,7 +95,7 @@ library Tick {
 
         // when the lower (upper) tick is crossed left to right (right to left), liquidity must be added (removed)
         info.liquidityNet = upper
-            ? LowGasSafeMath.sub(int128(info.liquidityNet), liquidityDelta)
-            : LowGasSafeMath.add(int128(info.liquidityNet), liquidityDelta);
+            ? int128(info.liquidityNet).sub(liquidityDelta)
+            : int128(info.liquidityNet).add(liquidityDelta);
     }
 }
