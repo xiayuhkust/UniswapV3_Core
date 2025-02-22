@@ -2,6 +2,11 @@
 src = 'contracts'
 out = 'out'
 libs = ['lib']
-solc_version = '0.8.14'
+solc = "0.8.14"
 optimizer = true
 optimizer_runs = 1000000
+
+[profile.ci]
+verbosity = 4
+ffi = true
+fs_permissions = [{ access = "read-write", path = "./" }]
