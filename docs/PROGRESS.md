@@ -9,6 +9,7 @@
   - [x] Position management
   - [x] Liquidity tracking
   - [x] Fee calculation
+  - [x] Error handling
 - [ ] Generalized Swapping
   - [ ] Price calculation
   - [ ] Swap execution

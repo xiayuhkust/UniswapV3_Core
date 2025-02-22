@@ -19,6 +19,14 @@ import "./libraries/LiquidityMath.sol";
 import "./libraries/TickBitmap.sol";
 
 contract UniswapV3Pool is IUniswapV3Pool {
+    error AlreadyInitialized();
+    error FlashLoanNotPaid();
+    error InsufficientInputAmount();
+    error InvalidPriceLimit();
+    error InvalidTickRange();
+    error NotEnoughLiquidity();
+    error ZeroLiquidity();
+
     using LowGasSafeMath for uint256;
     using LowGasSafeMath for int256;
     using SafeCast for uint256;
@@ -96,6 +104,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
             int256 amount1
         )
     {
+        // gas optimizations
+        Slot0 memory slot0_ = slot0;
+        uint256 feeGrowthGlobal0X128_ = feeGrowthGlobal0X128;
+        uint256 feeGrowthGlobal1X128_ = feeGrowthGlobal1X128;
+
         position = positions.get(
             params.owner,
             params.lowerTick,
@@ -104,19 +117,19 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
         bool flippedLower = ticks.update(
             params.lowerTick,
-            slot0.tick,
+            slot0_.tick,
             params.liquidityDelta,
-            feeGrowthGlobal0X128,
-            feeGrowthGlobal1X128,
+            feeGrowthGlobal0X128_,
+            feeGrowthGlobal1X128_,
             false
         );
 
         bool flippedUpper = ticks.update(
             params.upperTick,
-            slot0.tick,
+            slot0_.tick,
             params.liquidityDelta,
-            feeGrowthGlobal0X128,
-            feeGrowthGlobal1X128,
+            feeGrowthGlobal0X128_,
+            feeGrowthGlobal1X128_,
             true
         );
 
@@ -127,7 +140,20 @@ contract UniswapV3Pool is IUniswapV3Pool {
             tickBitmap.flipTick(params.upperTick, tickSpacing);
         }
 
-        position.update(params.liquidityDelta, 0, 0);
+        (uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128) = ticks
+            .getFeeGrowthInside(
+                params.lowerTick,
+                params.upperTick,
+                slot0_.tick,
+                feeGrowthGlobal0X128_,
+                feeGrowthGlobal1X128_
+            );
+
+        position.update(
+            params.liquidityDelta,
+            feeGrowthInside0X128,
+            feeGrowthInside1X128
+        );
 
         if (slot0.tick < params.lowerTick) {
             amount0 = Math.getAmount0Delta(
@@ -186,9 +212,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
         bytes calldata data
     ) external override returns (uint256 amount0, uint256 amount1) {
         if (amount == 0) revert ZeroLiquidity();
-        if (lowerTick >= upperTick) revert InvalidTickRange();
-        if (lowerTick < TickMath.MIN_TICK || upperTick > TickMath.MAX_TICK)
-            revert InvalidTickRange();
+        if (
+            lowerTick >= upperTick ||
+            lowerTick < TickMath.MIN_TICK ||
+            upperTick > TickMath.MAX_TICK
+        ) revert InvalidTickRange();
 
         (, int256 amount0Int, int256 amount1Int) = _modifyPosition(
             ModifyPositionParams({
@@ -217,16 +245,6 @@ contract UniswapV3Pool is IUniswapV3Pool {
             revert InsufficientInputAmount();
         if (amount1 > 0 && balance1Before + amount1 > balance1())
             revert InsufficientInputAmount();
-
-        emit Mint(
-            msg.sender,
-            recipient,
-            lowerTick,
-            upperTick,
-            amount,
-            amount0,
-            amount1
-        );
 
         emit Mint(
             msg.sender,
