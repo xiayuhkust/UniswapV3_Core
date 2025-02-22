@@ -3,6 +3,7 @@ pragma solidity =0.7.6;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
+import "forge-std/Vm.sol";
 import "../contracts/UniswapV3Pool.sol";
 import "../contracts/interfaces/IERC20.sol";
 
@@ -60,7 +61,7 @@ contract UniswapV3PoolTest is Test {
 
     function test_RevertWhen_InvalidTickOrder() public {
         // Try to mint with lower tick greater than upper tick
-        vm.expectRevert("TLU");  // Tick Lower > Upper
+        vm.expectRevert(bytes("TLU"));  // Tick Lower > Upper
         pool.mint(owner, 60, -60, 1000, "");
     }
 }
