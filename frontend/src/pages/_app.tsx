@@ -1,8 +1,7 @@
 import React from 'react';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { Web3ReactProvider } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { InjectedConnector } from '@web3-react/injected-connector';
 import '../styles/globals.css';
 
 function getLibrary(provider: any): Web3Provider {
@@ -10,8 +9,6 @@ function getLibrary(provider: any): Web3Provider {
   library.pollingInterval = 12000;
   return library;
 }
-
-// Injector is defined in index.tsx
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
