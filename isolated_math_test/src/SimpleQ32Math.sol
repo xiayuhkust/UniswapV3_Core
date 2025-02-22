@@ -6,11 +6,6 @@ library SimpleQ32Math {
     error DivisionByZero();
     error MultiplicationOverflow();
 
-    /// @notice Calculates floor(a×b÷denominator) with full precision for signed numbers
-    /// @param amount The signed multiplicand
-    /// @param multiplier The unsigned multiplier
-    /// @param denominator The unsigned divisor
-    /// @return result The signed 256-bit result
     function mulDiv(
         int256 amount,
         uint256 multiplier,
@@ -21,25 +16,11 @@ library SimpleQ32Math {
         
         // Handle negative numbers
         bool isNegative = amount < 0;
-        uint256 absAmount;
-        
-        // Convert to absolute value
-        absAmount = uint256(isNegative ? -amount : amount);
+        uint256 absAmount = uint256(isNegative ? -amount : amount);
         
         // Perform multiplication first
-        uint256 product;
-        assembly {
-            product := mul(absAmount, multiplier)
-            
-            // Check for overflow
-            if gt(product, 0) {
-                if iszero(eq(div(product, absAmount), multiplier)) {
-                    // Store the function selector of MultiplicationOverflow()
-                    mstore(0x00, 0x96e4ee3d)
-                    revert(0x00, 0x04)
-                }
-            }
-        }
+        uint256 product = absAmount * multiplier;
+        if (product / absAmount != multiplier) revert MultiplicationOverflow();
         
         // Perform division
         uint256 quotient = product / denominator;
@@ -51,11 +32,6 @@ library SimpleQ32Math {
         return isNegative ? -int256(quotient) : int256(quotient);
     }
 
-    /// @notice Calculates ceil(a×b÷denominator) with full precision for signed numbers
-    /// @param amount The signed multiplicand
-    /// @param multiplier The unsigned multiplier
-    /// @param denominator The unsigned divisor
-    /// @return result The signed 256-bit result
     function mulDivRoundingUp(
         int256 amount,
         uint256 multiplier,

@@ -462,7 +462,7 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
                 state.sqrtPriceX96,
                 sqrtPriceTargetX96,
                 state.liquidity,
-                uint256(state.amountSpecifiedRemaining >= 0 ? uint256(state.amountSpecifiedRemaining) : uint256(-state.amountSpecifiedRemaining)),
+                state.amountSpecifiedRemaining,
                 fee
             );
 
@@ -475,7 +475,7 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
                 state.sqrtPriceX96,
                 sqrtPriceTargetX96,
                 state.liquidity,
-                uint256(state.amountSpecifiedRemaining >= 0 ? uint256(state.amountSpecifiedRemaining) : uint256(-state.amountSpecifiedRemaining)),
+                state.amountSpecifiedRemaining,
                 fee
             );
 
