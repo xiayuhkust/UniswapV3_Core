@@ -276,54 +276,87 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
         bytes calldata data
     ) external override returns (int256 amount0, int256 amount1) {
         if (amountSpecified == 0) revert InsufficientInputAmount();
+        if (liquidity == 0) revert NotEnoughLiquidity();
+        
         Slot0 memory slot0Start = slot0_;
-
         if (!slot0Start.unlocked) revert PoolLocked();
+
         if (
             zeroForOne
-                ? sqrtPriceLimitX96 > slot0Start.sqrtPriceX96 ||
-                    sqrtPriceLimitX96 < TickMath.MIN_SQRT_RATIO
-                : sqrtPriceLimitX96 < slot0Start.sqrtPriceX96 ||
-                    sqrtPriceLimitX96 > TickMath.MAX_SQRT_RATIO
+                ? sqrtPriceLimitX96 >= slot0Start.sqrtPriceX96 ||
+                    sqrtPriceLimitX96 <= TickMath.MIN_SQRT_RATIO
+                : sqrtPriceLimitX96 <= slot0Start.sqrtPriceX96 ||
+                    sqrtPriceLimitX96 >= TickMath.MAX_SQRT_RATIO
         ) revert InvalidPriceLimit();
 
         slot0_.unlocked = false;
 
         SwapState memory state = SwapState({
-            amountSpecifiedRemaining: uint256(amountSpecified > 0 ? amountSpecified : -amountSpecified),
+            amountSpecifiedRemaining: amountSpecified,
             amountCalculated: 0,
             sqrtPriceX96: slot0Start.sqrtPriceX96,
             tick: slot0Start.tick,
             liquidity: liquidity,
-            feeGrowthGlobalX128: zeroForOne ? feeGrowthGlobal0X128 : feeGrowthGlobal1X128
+            feeGrowthGlobalX128: 0,
+            amountIn: 0,
+            amountOut: 0
         });
 
+        // Set initial fee growth
+        if (zeroForOne) {
+            state.feeGrowthGlobalX128 = feeGrowthGlobal0X128;
+        } else {
+            state.feeGrowthGlobalX128 = feeGrowthGlobal1X128;
+        }
+
         // Main swap loop
+        uint256 loopCount;
         while (
-            state.amountSpecifiedRemaining > 0 &&
-            state.sqrtPriceX96 != sqrtPriceLimitX96
+            state.amountSpecifiedRemaining != 0 &&
+            state.sqrtPriceX96 != sqrtPriceLimitX96 &&
+            state.liquidity > 0 &&
+            loopCount < 100 // Prevent infinite loops
         ) {
+            loopCount++;
             StepState memory step;
             step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
             // Find next initialized tick
-            (step.nextTick, bool initialized) = tickBitmap.nextInitializedTickWithinOneWord(
+            bool initialized;
+            (step.nextTick, initialized) = tickBitmap.nextInitializedTickWithinOneWord(
                 state.tick,
                 int24(tickSpacing),
-                zeroForOne
+                !zeroForOne // Invert direction since we want to move down for zeroForOne
             );
 
             // Get sqrt price at next tick
+            if (step.nextTick < TickMath.MIN_TICK) {
+                step.nextTick = TickMath.MIN_TICK;
+            } else if (step.nextTick > TickMath.MAX_TICK) {
+                step.nextTick = TickMath.MAX_TICK;
+            }
             step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.nextTick);
 
             // Ensure price doesn't exceed limit
-            if (zeroForOne && step.sqrtPriceNextX96 < sqrtPriceLimitX96) {
-                step.sqrtPriceNextX96 = sqrtPriceLimitX96;
-            } else if (!zeroForOne && step.sqrtPriceNextX96 > sqrtPriceLimitX96) {
-                step.sqrtPriceNextX96 = sqrtPriceLimitX96;
+            if (zeroForOne) {
+                if (step.sqrtPriceNextX96 < sqrtPriceLimitX96) {
+                    step.sqrtPriceNextX96 = sqrtPriceLimitX96;
+                    break;
+                }
+            } else {
+                if (step.sqrtPriceNextX96 > sqrtPriceLimitX96) {
+                    step.sqrtPriceNextX96 = sqrtPriceLimitX96;
+                    break;
+                }
             }
 
             // Compute swap step
+            if (state.liquidity == 0) {
+                state.sqrtPriceX96 = sqrtPriceLimitX96;
+                state.tick = TickMath.getTickAtSqrtRatio(sqrtPriceLimitX96);
+                break;
+            }
+
             (step.sqrtPriceNextX96, step.amountIn, step.amountOut, step.feeAmount) = SwapMath
                 .computeSwapStep(
                     state.sqrtPriceX96,
@@ -335,17 +368,47 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
 
             // Update state with step results
             state.sqrtPriceX96 = step.sqrtPriceNextX96;
-            state.amountSpecifiedRemaining -= step.amountIn;
-            state.amountCalculated += step.amountOut;
             state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
 
+            // Update amounts and fees
+            if (amountSpecified > 0) {
+                state.amountSpecifiedRemaining -= int256(step.amountIn + step.feeAmount);
+                state.amountCalculated += int256(step.amountOut);
+            } else {
+                state.amountSpecifiedRemaining += int256(step.amountOut);
+                state.amountCalculated -= int256(step.amountIn + step.feeAmount);
+            }
+
+            // Track amounts
+            state.amountIn += step.amountIn;
+            state.amountOut += step.amountOut;
+
             // Update fee growth
-            if (state.liquidity > 0) {
-                state.feeGrowthGlobalX128 += SimpleQ32Math.mulDiv(
+            if (state.liquidity > 0 && step.feeAmount > 0) {
+                uint256 feePerLiquidity = SimpleQ32Math.mulDiv(
                     step.feeAmount,
                     FixedPoint128.Q128,
                     state.liquidity
                 );
+                if (zeroForOne) {
+                    feeGrowthGlobal0X128 += feePerLiquidity;
+                } else {
+                    feeGrowthGlobal1X128 += feePerLiquidity;
+                }
+            }
+
+            // Update fee growth
+            if (state.liquidity > 0 && step.feeAmount > 0) {
+                uint256 feePerLiquidity = SimpleQ32Math.mulDiv(
+                    step.feeAmount,
+                    FixedPoint128.Q128,
+                    state.liquidity
+                );
+                if (zeroForOne) {
+                    feeGrowthGlobal0X128 += feePerLiquidity;
+                } else {
+                    feeGrowthGlobal1X128 += feePerLiquidity;
+                }
             }
         }
 
@@ -364,15 +427,31 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
         }
 
         // Calculate final amounts
-        (amount0, amount1) = zeroForOne
-            ? (
-                int256(state.amountSpecifiedRemaining - amountSpecified),
-                int256(state.amountCalculated)
-            )
-            : (
-                int256(state.amountCalculated),
-                int256(state.amountSpecifiedRemaining - amountSpecified)
+        if (zeroForOne) {
+            amount0 = int256(amountSpecified - state.amountSpecifiedRemaining);
+            amount1 = -int256(state.amountCalculated);
+        } else {
+            amount0 = -int256(state.amountCalculated);
+            amount1 = int256(amountSpecified - state.amountSpecifiedRemaining);
+        }
+
+        // Update slot0 state
+        slot0_.sqrtPriceX96 = state.sqrtPriceX96;
+        slot0_.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
+
+        // Update fee growth
+        if (state.liquidity > 0) {
+            uint256 feePerLiquidity = SimpleQ32Math.mulDiv(
+                state.amountIn,
+                FixedPoint128.Q128,
+                state.liquidity
             );
+            if (zeroForOne) {
+                feeGrowthGlobal0X128 += feePerLiquidity;
+            } else {
+                feeGrowthGlobal1X128 += feePerLiquidity;
+            }
+        }
 
         // Transfer tokens
         if (zeroForOne) {
@@ -397,12 +476,14 @@ abstract contract UniswapV3Pool is IUniswapV3Pool {
     }
 
     struct SwapState {
-        uint256 amountSpecifiedRemaining;
-        uint256 amountCalculated;
+        int256 amountSpecifiedRemaining;
+        int256 amountCalculated;
         uint160 sqrtPriceX96;
         int24 tick;
         uint128 liquidity;
         uint256 feeGrowthGlobalX128;
+        uint256 amountIn;
+        uint256 amountOut;
     }
 
     struct StepState {
