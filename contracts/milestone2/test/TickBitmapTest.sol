@@ -15,7 +15,7 @@ contract TickBitmapTest is Test {
         int24 spacing = 10;
         
         // Initial state should be uninitialized
-        (int24 nextBefore, bool initializedBefore) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
+        (, bool initializedBefore) = bitmap.nextInitializedTickWithinOneWord(tick - spacing, spacing, true);
         assertTrue(!initializedBefore, "Tick should not be initialized initially");
         
         // Flip tick to initialized
