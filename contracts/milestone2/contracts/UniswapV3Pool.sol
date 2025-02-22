@@ -12,6 +12,9 @@ import "./libraries/Tick.sol";
 import "./libraries/TickMath.sol";
 import "./libraries/Position.sol";
 import "./libraries/Oracle.sol";
+import "./libraries/Math.sol";
+import "./libraries/SwapMath.sol";
+import "./libraries/FixedPoint96.sol";
 import "./libraries/Tick.sol";
 
 contract UniswapV3Pool is IUniswapV3Pool {
@@ -23,6 +26,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using Tick for mapping(int24 => Tick.Info);
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
+    using SwapMath for uint256;
 
     // Pool tokens
     address public immutable token0;
@@ -33,7 +37,27 @@ contract UniswapV3Pool is IUniswapV3Pool {
     int24 public immutable tickSpacing;
 
     // Pool state
-    uint160 public slot0;
+    struct Slot0 {
+        // the current price
+        uint160 sqrtPriceX96;
+        // the current tick
+        int24 tick;
+        // the most-recently updated index of the observations array
+        uint16 observationIndex;
+        // the current maximum number of observations that are being stored
+        uint16 observationCardinality;
+        // the next maximum number of observations to store, triggered in observations.write
+        uint16 observationCardinalityNext;
+        // the current protocol fee as a percentage of the swap fee taken on withdrawal
+        // represented as an integer denominator (1/x)%
+        uint8 feeProtocol;
+        // whether the pool is locked
+        bool unlocked;
+    }
+
+    /// @dev The 0th storage slot in the pool stores many values, and is exposed as a single method to save gas
+    /// when accessed externally.
+    Slot0 public slot0;
     uint128 public liquidity;
 
     // Positions
