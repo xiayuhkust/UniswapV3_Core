@@ -32,7 +32,6 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using Tick for mapping(int24 => Tick.Info);
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
-    using SwapMath for uint256;
     using TickBitmap for mapping(int16 => uint256);
 
     // Pool tokens
