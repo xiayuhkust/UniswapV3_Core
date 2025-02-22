@@ -153,25 +153,25 @@ contract UniswapV3Pool is IUniswapV3Pool {
         );
 
         if (slot0.tick < params.lowerTick) {
-            amount0 = Math.getAmount0Delta(
+            amount0 = Math.calcAmount0Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
             );
         } else if (slot0.tick < params.upperTick) {
-            amount0 = Math.getAmount0Delta(
+            amount0 = Math.calcAmount0Delta(
                 slot0.sqrtPriceX96,
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
             );
-            amount1 = Math.getAmount1Delta(
+            amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
                 slot0.sqrtPriceX96,
                 params.liquidityDelta
             );
             liquidity = LiquidityMath.addDelta(liquidity, params.liquidityDelta);
         } else {
-            amount1 = Math.getAmount1Delta(
+            amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
