@@ -22,17 +22,17 @@ contract PositionTest is Test {
 
         // Update position with new liquidity
         int128 liquidityDelta = 1000;
-        uint256 feeGrowthInside0X128 = 1 << 64;  // Large initial fee growth
-        uint256 feeGrowthInside1X128 = 1 << 64;
+        uint256 feeGrowthInside0X128 = FixedPoint128.Q128;  // Initial fee growth of 1.0
+        uint256 feeGrowthInside1X128 = FixedPoint128.Q128;
 
         Position.update(position, liquidityDelta, feeGrowthInside0X128, feeGrowthInside1X128);
         assertEq(uint256(position.liquidity), uint256(1000), "Liquidity not updated correctly");
         assertEq(position.feeGrowthInside0LastX128, feeGrowthInside0X128, "Fee growth 0 not updated");
         assertEq(position.feeGrowthInside1LastX128, feeGrowthInside1X128, "Fee growth 1 not updated");
 
-        // Update position with increased fee growth
-        feeGrowthInside0X128 = 2 << 64;  // Double the fee growth
-        feeGrowthInside1X128 = 2 << 64;
+        // Update position with increased fee growth (2.0)
+        feeGrowthInside0X128 = 2 * FixedPoint128.Q128;
+        feeGrowthInside1X128 = 2 * FixedPoint128.Q128;
 
         Position.update(position, 0, feeGrowthInside0X128, feeGrowthInside1X128);
         assertTrue(uint256(position.tokensOwed0) > 0, "Tokens owed 0 should increase");

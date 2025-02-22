@@ -72,11 +72,13 @@ library Position {
         uint256 z
     ) internal pure returns (uint256) {
         require(z > 0, "MD");
-        uint256 a = x / z;
-        uint256 b = x % z;
-        uint256 c = y / z;
-        uint256 d = y % z;
-
-        return a * y + b * c + (b * d) / z;
+        // Handle the case where x * y might overflow
+        uint256 MAX_UINT = type(uint256).max;
+        if (x == 0 || y == 0) return 0;
+        if (y > MAX_UINT / x) revert("Multiplication overflow");
+        uint256 product = x * y;
+        uint256 result = product / z;
+        require(result <= type(uint128).max, "Result exceeds uint128");
+        return result;
     }
 }
