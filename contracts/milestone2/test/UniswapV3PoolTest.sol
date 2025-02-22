@@ -52,7 +52,7 @@ contract UniswapV3PoolTest is Test {
         bytes32 positionKey = keccak256(abi.encodePacked(owner, lowerTick, upperTick));
         (uint128 liquidity,,,,) = pool.positions(positionKey);
 
-        assertEq(liquidity, amount, "Incorrect liquidity");
+        assertEq(uint256(liquidity), uint256(amount), "Incorrect liquidity");
     }
 
     function testFailMintWithInvalidTicks() public {
