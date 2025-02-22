@@ -26,6 +26,14 @@ library LowGasSafeMath {
         require(x == 0 || (z = x * y) / x == y);
     }
 
+    /// @notice Returns x + y, reverts if overflows
+    /// @param x The first uint128
+    /// @param y The second uint128
+    /// @return z The sum of x and y
+    function add128(uint128 x, uint128 y) internal pure returns (uint128 z) {
+        require((z = x + y) >= x);
+    }
+
     /// @notice Returns x + y, reverts if overflows or underflows
     /// @param x The first int256
     /// @param y The second int256
