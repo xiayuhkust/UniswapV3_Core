@@ -11,7 +11,10 @@ contract TestTokensTest is Test {
     IERC20 public constant TT2 = IERC20(0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122);
 
     function setUp() public {
-        vm.createSelectFork(vm.envOr("ETH_RPC_URL", "https://rpc-beta1.turablockchain.com"));
+        string memory rpc = vm.envOr("ETH_RPC_URL", "https://rpc-beta1.turablockchain.com");
+        uint256 forkId = vm.createSelectFork(rpc);
+        require(forkId >= 0, "Fork creation failed");
+        require(block.number > 0, "Fork not created properly");
     }
 
     function testTokenSupplies() public {
