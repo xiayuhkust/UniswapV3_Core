@@ -94,8 +94,10 @@ library Tick {
         info.liquidityGross = liquidityGrossAfter;
 
         // when the lower (upper) tick is crossed left to right (right to left), liquidity must be added (removed)
-        info.liquidityNet = upper
-            ? int128(info.liquidityNet).sub(liquidityDelta)
-            : int128(info.liquidityNet).add(liquidityDelta);
+        int128 newLiquidityNet = upper
+            ? int128(info.liquidityNet) - liquidityDelta
+            : int128(info.liquidityNet) + liquidityDelta;
+        require(newLiquidityNet >= type(int128).min && newLiquidityNet <= type(int128).max, "LO");
+        info.liquidityNet = newLiquidityNet;
     }
 }
