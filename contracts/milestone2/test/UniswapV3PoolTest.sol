@@ -28,10 +28,10 @@ contract UniswapV3PoolTest is Test {
     }
 
     function testInitialState() public {
-        assertEq(pool.token0(), token0, "Incorrect token0");
-        assertEq(pool.token1(), token1, "Incorrect token1");
-        assertEq(pool.fee(), 3000, "Incorrect fee");
-        assertEq(pool.tickSpacing(), 60, "Incorrect tick spacing");
+        assertEq(address(pool.token0()), address(token0), "Incorrect token0");
+        assertEq(address(pool.token1()), address(token1), "Incorrect token1");
+        assertEq(uint256(pool.fee()), uint256(3000), "Incorrect fee");
+        assertEq(int24(pool.tickSpacing()), int24(60), "Incorrect tick spacing");
     }
 
     function testMint() public {
@@ -52,7 +52,7 @@ contract UniswapV3PoolTest is Test {
         bytes32 positionKey = keccak256(abi.encodePacked(owner, lowerTick, upperTick));
         (uint128 liquidity,,,,) = pool.positions(positionKey);
 
-        assertEq(uint256(liquidity), uint256(amount), "Incorrect liquidity");
+        assertEq(liquidity, amount, "Incorrect liquidity");
     }
 
     function testFailMintWithInvalidTicks() public {
