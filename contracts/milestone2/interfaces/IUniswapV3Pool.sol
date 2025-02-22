@@ -2,11 +2,11 @@
 pragma solidity ^0.8.14;
 
 interface IUniswapV3Pool {
-    struct CallbackData {
-        address token0;
-        address token1;
-        address payer;
-    }
+    function token0() external view returns (address);
+    function token1() external view returns (address);
+    function factory() external view returns (address);
+    function fee() external view returns (uint24);
+    function tickSpacing() external view returns (uint24);
 
     function slot0()
         external
@@ -19,12 +19,6 @@ interface IUniswapV3Pool {
             uint16 observationCardinalityNext
         );
 
-    function factory() external view returns (address);
-    function token0() external view returns (address);
-    function token1() external view returns (address);
-    function tickSpacing() external view returns (uint24);
-    function fee() external view returns (uint24);
-
     function positions(bytes32 key)
         external
         view
@@ -36,33 +30,39 @@ interface IUniswapV3Pool {
             uint128 tokensOwed1
         );
 
+    event Mint(
+        address sender,
+        address indexed recipient,
+        int24 indexed lowerTick,
+        int24 indexed upperTick,
+        uint128 amount,
+        uint256 amount0,
+        uint256 amount1
+    );
+
     function mint(
-        address owner,
+        address recipient,
         int24 lowerTick,
         int24 upperTick,
         uint128 amount,
         bytes calldata data
     ) external returns (uint256 amount0, uint256 amount1);
 
-    function burn(
-        int24 lowerTick,
-        int24 upperTick,
-        uint128 amount
-    ) external returns (uint256 amount0, uint256 amount1);
-
-    function collect(
-        address recipient,
-        int24 lowerTick,
-        int24 upperTick,
-        uint128 amount0Requested,
-        uint128 amount1Requested
-    ) external returns (uint128 amount0, uint128 amount1);
+    event Swap(
+        address indexed sender,
+        address indexed recipient,
+        int256 amount0,
+        int256 amount1,
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        int24 tick
+    );
 
     function swap(
         address recipient,
         bool zeroForOne,
-        uint256 amountSpecified,
+        int256 amountSpecified,
         uint160 sqrtPriceLimitX96,
         bytes calldata data
-    ) external returns (int256, int256);
+    ) external returns (int256 amount0, int256 amount1);
 }

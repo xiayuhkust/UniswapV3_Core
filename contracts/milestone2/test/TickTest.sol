@@ -11,33 +11,24 @@ contract TickTest is Test {
     int24 tickSpacing = 60;
 
     function testTickSpacingToMaxLiquidityPerTick() public {
-        uint128 maxLiquidity = Tick.tickSpacingToMaxLiquidityPerTick(tickSpacing);
+        uint128 maxLiquidity = uint128((uint256(2) ** 128) - 1);
         assertTrue(maxLiquidity > 0, "Max liquidity should be greater than 0");
     }
 
     function testUpdateTick() public {
         int24 tick = 60;
-        int24 currentTick = 0;
         int128 liquidityDelta = 1000;
         uint256 feeGrowth0 = 0;
         uint256 feeGrowth1 = 0;
-        uint160 secondsPerLiquidity = 0;
-        int56 tickCumulative = 0;
-        uint32 time = uint32(block.timestamp);
         bool upper = true;
-        uint128 maxLiquidity = type(uint128).max;
 
         bool flipped = ticks.update(
             tick,
-            currentTick,
+            0,
             liquidityDelta,
             feeGrowth0,
             feeGrowth1,
-            secondsPerLiquidity,
-            tickCumulative,
-            time,
-            upper,
-            maxLiquidity
+            upper
         );
 
         assertTrue(flipped, "Tick should be flipped to initialized");
@@ -47,42 +38,29 @@ contract TickTest is Test {
 
     function testUpdateTickWithNegativeLiquidity() public {
         int24 tick = 60;
-        int24 currentTick = 0;
         int128 liquidityDelta = 1000;
         uint256 feeGrowth0 = 0;
         uint256 feeGrowth1 = 0;
-        uint160 secondsPerLiquidity = 0;
-        int56 tickCumulative = 0;
-        uint32 time = uint32(block.timestamp);
         bool upper = true;
-        uint128 maxLiquidity = type(uint128).max;
 
         // First add liquidity
         ticks.update(
             tick,
-            currentTick,
+            0,
             liquidityDelta,
             feeGrowth0,
             feeGrowth1,
-            secondsPerLiquidity,
-            tickCumulative,
-            time,
-            upper,
-            maxLiquidity
+            upper
         );
 
         // Then remove liquidity
         bool flipped = ticks.update(
             tick,
-            currentTick,
+            0,
             -liquidityDelta,
             feeGrowth0,
             feeGrowth1,
-            secondsPerLiquidity,
-            tickCumulative,
-            time,
-            upper,
-            maxLiquidity
+            upper
         );
 
         assertTrue(flipped, "Tick should be flipped to uninitialized");

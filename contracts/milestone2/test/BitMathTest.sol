@@ -2,7 +2,7 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../contracts/BitMath.sol";
+import "../contracts/libraries/BitMath.sol";
 
 contract BitMathWrapper {
     function callMostSignificantBit(uint256 x) external pure returns (uint8) {
@@ -22,12 +22,12 @@ contract BitMathTest is Test {
     }
 
     function testMostSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+        vm.expectRevert(BitMath.ZERO_VALUE.selector);
         wrapper.callMostSignificantBit(0);
     }
 
     function testLeastSignificantBitZero() public {
-        vm.expectRevert("BitMath: ZERO_VALUE");
+        vm.expectRevert(BitMath.ZERO_VALUE.selector);
         wrapper.callLeastSignificantBit(0);
     }
 

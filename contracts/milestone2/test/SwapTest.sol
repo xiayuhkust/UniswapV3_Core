@@ -2,23 +2,32 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../contracts/UniswapV3Pool.sol";
-import "../contracts/interfaces/IERC20.sol";
+import "./TestUniswapV3Pool.sol";
+import "./MockToken.sol";
+import "interfaces/IERC20.sol";
+import "interfaces/IUniswapV3MintCallback.sol";
+import "interfaces/IUniswapV3SwapCallback.sol";
 
-contract SwapTest is Test {
+contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
     UniswapV3Pool pool;
     address token0;
     address token1;
     address owner;
 
     function setUp() public {
-        // Deploy test tokens
-        token0 = 0x3F26F01Fa9A5506c9109B5Ad15343363909fc0b9; // TT1
-        token1 = 0x8FDCE0D41f0A99B5f9FbcFAfd481ffcA61d01122; // TT2
+        // Deploy mock tokens
+        MockToken token0Mock = new MockToken("Token0", "TK0", 18);
+        MockToken token1Mock = new MockToken("Token1", "TK1", 18);
+        token0 = address(token0Mock);
+        token1 = address(token1Mock);
         owner = address(this);
 
+        // Mint tokens to this contract
+        token0Mock.mint(address(this), type(uint256).max);
+        token1Mock.mint(address(this), type(uint256).max);
+
         // Deploy pool
-        pool = new UniswapV3Pool(
+        pool = new TestUniswapV3Pool(
             token0,
             token1,
             3000, // 0.3% fee tier
@@ -97,5 +106,27 @@ contract SwapTest is Test {
             sqrtPriceLimitX96,
             ""
         );
+    }
+
+    function uniswapV3MintCallback(
+        uint256 amount0,
+        uint256 amount1,
+        bytes calldata data
+    ) external {
+        MockToken(token0).transfer(msg.sender, amount0);
+        MockToken(token1).transfer(msg.sender, amount1);
+    }
+
+    function uniswapV3SwapCallback(
+        int256 amount0Delta,
+        int256 amount1Delta,
+        bytes calldata data
+    ) external {
+        if (amount0Delta > 0) {
+            MockToken(token0).transfer(msg.sender, uint256(amount0Delta));
+        }
+        if (amount1Delta > 0) {
+            MockToken(token1).transfer(msg.sender, uint256(amount1Delta));
+        }
     }
 }

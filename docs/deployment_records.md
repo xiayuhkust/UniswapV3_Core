@@ -51,6 +51,11 @@
    - Time spent: ~15 minutes
    - Note: Test files will need to be restored and forge-std properly installed for future testing
 
+2. BitMath library custom errors
+   - Resolution: Added custom error ZERO_VALUE() to handle zero input validation
+   - Time spent: ~10 minutes
+   - Note: Updated tests to expect custom error
+
 ### Next Steps
 1. Deploy WETH contract at specified address
 2. Restore test files and install forge-std dependency
