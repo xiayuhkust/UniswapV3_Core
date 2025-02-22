@@ -35,8 +35,8 @@ Current Progress: Milestone 0
 - [ ] 20. User Interface
 
 ## Milestone 3: Cross-Tick Swaps
-- [ ] 21. Introduction
-- [ ] 22. Different Price Ranges
+- [x] 21. Introduction
+- [x] 22. Different Price Ranges
 - [ ] 23. Cross-Tick Swaps
 - [ ] 24. Slippage Protection
 - [ ] 25. Liquidity Calculation
