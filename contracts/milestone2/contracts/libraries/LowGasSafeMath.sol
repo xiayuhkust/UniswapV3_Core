@@ -2,67 +2,23 @@
 pragma solidity =0.7.6;
 
 library LowGasSafeMath {
-    /// @notice Returns x + y, reverts if sum overflows uint256
-    /// @param x The first uint256
-    /// @param y The second uint256
-    /// @return z The sum of x and y
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x);
     }
 
-    /// @notice Returns x - y, reverts if underflows
-    /// @param x The first uint256
-    /// @param y The second uint256
-    /// @return z The difference of x and y
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x - y) <= x);
-    }
-
-    /// @notice Returns x * y, reverts if overflows
-    /// @param x The first uint256
-    /// @param y The second uint256
-    /// @return z The product of x and y
-    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(x == 0 || (z = x * y) / x == y);
-    }
-
-    /// @notice Returns x + y, reverts if overflows
-    /// @param x The first uint128
-    /// @param y The second uint128
-    /// @return z The sum of x and y
     function add128(uint128 x, uint128 y) internal pure returns (uint128 z) {
         require((z = x + y) >= x);
     }
 
-    /// @notice Returns x + y, reverts if overflows or underflows
-    /// @param x The first int128
-    /// @param y The second int128
-    /// @return z The sum of x and y
-    function add(int128 x, int128 y) internal pure returns (int128 z) {
-        require((z = x + y) >= x == (y >= 0));
+    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require((z = x - y) <= x);
     }
 
-    /// @notice Returns x - y, reverts if overflows or underflows
-    /// @param x The first int128
-    /// @param y The second int128
-    /// @return z The difference of x and y
-    function sub(int128 x, int128 y) internal pure returns (int128 z) {
-        require((z = x - y) <= x == (y >= 0));
+    function sub128(uint128 x, uint128 y) internal pure returns (uint128 z) {
+        require((z = x - y) <= x);
     }
 
-    /// @notice Returns x + y, reverts if overflows or underflows
-    /// @param x The first int256
-    /// @param y The second int256
-    /// @return z The sum of x and y
-    function add(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x + y) >= x == (y >= 0));
-    }
-
-    /// @notice Returns x - y, reverts if overflows or underflows
-    /// @param x The first int256
-    /// @param y The second int256
-    /// @return z The difference of x and y
-    function sub(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x - y) <= x == (y >= 0));
+    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require(y == 0 || (z = x * y) / y == x);
     }
 }
