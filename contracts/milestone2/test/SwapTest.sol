@@ -20,8 +20,8 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
         owner = address(this);
 
         // Mint tokens to this contract
-        token0.mint(address(this), 10000000); // 10M tokens
-        token1.mint(address(this), 10000000); // 10M tokens
+        token0.mint(address(this), 1e18); // Large amount for testing
+        token1.mint(address(this), 1e18); // Large amount for testing
 
         // Deploy pool
         pool = new TestUniswapV3Pool(
@@ -32,8 +32,8 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
         );
 
         // Approve pool
-        token0.approve(address(pool), 1e18);
-        token1.approve(address(pool), 1e18);
+        token0.approve(address(pool), type(uint256).max);
+        token1.approve(address(pool), type(uint256).max);
     }
 
     function testSwapZeroForOne() public {
