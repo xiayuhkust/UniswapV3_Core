@@ -128,8 +128,8 @@ library SwapMath {
             );
         }
 
-        // Limit input amount to prevent overflow
-        amountIn = maxAmountIn > uint256(-amountSpecified) ? uint256(-amountSpecified) : maxAmountIn;
+        // Use maxAmountIn directly since we handle limits in UniswapV3Pool
+        amountIn = maxAmountIn;
 
         // Calculate fee amount
         feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
