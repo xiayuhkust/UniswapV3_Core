@@ -44,20 +44,28 @@ library SwapMath {
             amountRemainingLessFee = absAmount;
         }
 
-        if (exactInput) {
-            sqrtPriceNextX96 = Math.getNextSqrtPriceFromInput(
+        // Calculate next sqrt price
+        sqrtPriceNextX96 = exactInput
+            ? Math.getNextSqrtPriceFromInput(
+                sqrtPriceCurrentX96,
+                liquidity,
+                amountRemainingLessFee,
+                zeroForOne
+            )
+            : Math.getNextSqrtPriceFromOutput(
                 sqrtPriceCurrentX96,
                 liquidity,
                 amountRemainingLessFee,
                 zeroForOne
             );
+
+        // Ensure price doesn't move beyond target
+        if (zeroForOne) {
+            require(sqrtPriceNextX96 >= sqrtPriceTargetX96, "Price below target");
+            sqrtPriceNextX96 = sqrtPriceTargetX96;
         } else {
-            sqrtPriceNextX96 = Math.getNextSqrtPriceFromOutput(
-                sqrtPriceCurrentX96,
-                liquidity,
-                amountRemainingLessFee,
-                zeroForOne
-            );
+            require(sqrtPriceNextX96 <= sqrtPriceTargetX96, "Price above target");
+            sqrtPriceNextX96 = sqrtPriceTargetX96;
         }
 
         // Calculate amounts
