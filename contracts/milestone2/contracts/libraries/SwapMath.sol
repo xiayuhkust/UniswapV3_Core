@@ -24,20 +24,25 @@ library SwapMath {
             uint256 feeAmount
         )
     {
-        bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
         bool exactInput = amountRemaining > 0;
         uint256 absAmount = uint256(amountRemaining > 0 ? amountRemaining : -amountRemaining);
+        bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
         
         if (liquidity == 0 || absAmount == 0) {
             return (sqrtPriceTargetX96, 0, 0, 0);
         }
 
         // Calculate amount after fee
-        uint256 amountRemainingLessFee = SimpleQ32Math.mulDiv(
-            absAmount,
-            1e6 - fee,
-            1e6
-        );
+        uint256 amountRemainingLessFee;
+        if (exactInput) {
+            amountRemainingLessFee = SimpleQ32Math.mulDiv(
+                absAmount,
+                1e6 - fee,
+                1e6
+            );
+        } else {
+            amountRemainingLessFee = absAmount;
+        }
 
         if (exactInput) {
             sqrtPriceNextX96 = Math.getNextSqrtPriceFromInput(
