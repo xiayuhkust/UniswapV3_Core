@@ -60,11 +60,9 @@ library SwapMath {
             );
 
         // Ensure price doesn't move beyond target
-        if (zeroForOne) {
-            require(sqrtPriceNextX96 >= sqrtPriceTargetX96, "Price below target");
+        if (zeroForOne && sqrtPriceNextX96 < sqrtPriceTargetX96) {
             sqrtPriceNextX96 = sqrtPriceTargetX96;
-        } else {
-            require(sqrtPriceNextX96 <= sqrtPriceTargetX96, "Price above target");
+        } else if (!zeroForOne && sqrtPriceNextX96 > sqrtPriceTargetX96) {
             sqrtPriceNextX96 = sqrtPriceTargetX96;
         }
 
@@ -111,10 +109,9 @@ library SwapMath {
             }
         }
 
-        // Calculate amounts based on price movement
-        uint256 maxAmountIn;
+        // Calculate final amounts
         if (zeroForOne) {
-            maxAmountIn = Math.calcAmount0Delta(
+            amountIn = Math.calcAmount0Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceNextX96,
                 liquidity,
@@ -127,7 +124,7 @@ library SwapMath {
                 false
             );
         } else {
-            maxAmountIn = Math.calcAmount1Delta(
+            amountIn = Math.calcAmount1Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceNextX96,
                 liquidity,
@@ -140,9 +137,6 @@ library SwapMath {
                 false
             );
         }
-
-        // Use maxAmountIn directly since we handle limits in UniswapV3Pool
-        amountIn = maxAmountIn;
 
         // Calculate fee amount
         feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
