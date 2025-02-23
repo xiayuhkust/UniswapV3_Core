@@ -142,37 +142,13 @@ library SwapMath {
         feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
 
         // Handle exact output swaps
-        if (!exactInput && amountOut > absAmount) {
-            amountOut = absAmount;
-            // Recalculate input amount based on exact output
-            if (zeroForOne) {
-                amountIn = Math.calcAmount0Delta(
-                    sqrtPriceCurrentX96,
-                    sqrtPriceNextX96,
-                    liquidity,
-                    true
-                );
-            } else {
-                amountIn = Math.calcAmount1Delta(
-                    sqrtPriceCurrentX96,
-                    sqrtPriceNextX96,
-                    liquidity,
-                    true
-                );
+        if (!exactInput) {
+            if (amountOut > absAmount) {
+                amountOut = absAmount;
             }
-            // Recalculate fee
             feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
-        }
-
-        // Adjust amounts for fees
-        if (exactInput) {
-            amountIn += feeAmount;
         } else {
-            uint256 totalAmountIn = amountIn + feeAmount;
-            if (totalAmountIn > absAmount) {
-                feeAmount = absAmount - amountIn;
-                amountIn = absAmount - feeAmount;
-            }
+            amountIn += feeAmount;
         }
     }
 }
