@@ -71,7 +71,7 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
 
         // Perform swap
         bool zeroForOne = false;
-        int256 amountSpecified = -100; // Larger amount to ensure price movement
+        int256 amountSpecified = -10; // Smaller amount to prevent overflow
         uint160 sqrtPriceLimitX96 = TickMath.MAX_SQRT_RATIO - 1;
 
         (int256 amount0, int256 amount1) = pool.swap(

@@ -99,8 +99,9 @@ library SwapMath {
         }
 
         // Calculate amounts based on price movement
+        uint256 maxAmountIn;
         if (zeroForOne) {
-            amountIn = Math.calcAmount0Delta(
+            maxAmountIn = Math.calcAmount0Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceNextX96,
                 liquidity,
@@ -113,7 +114,7 @@ library SwapMath {
                 false
             );
         } else {
-            amountIn = Math.calcAmount1Delta(
+            maxAmountIn = Math.calcAmount1Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceNextX96,
                 liquidity,
@@ -127,21 +128,39 @@ library SwapMath {
             );
         }
 
-        // Handle exact output swaps
-        if (!exactInput) {
-            if (amountOut > absAmount) {
-                amountOut = absAmount;
-            }
-        }
+        // Limit input amount to prevent overflow
+        amountIn = maxAmountIn > uint256(-amountSpecified) ? uint256(-amountSpecified) : maxAmountIn;
 
         // Calculate fee amount
         feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
+
+        // Handle exact output swaps
+        if (!exactInput && amountOut > absAmount) {
+            amountOut = absAmount;
+            // Recalculate input amount based on exact output
+            if (zeroForOne) {
+                amountIn = Math.calcAmount0Delta(
+                    sqrtPriceCurrentX96,
+                    sqrtPriceNextX96,
+                    liquidity,
+                    true
+                );
+            } else {
+                amountIn = Math.calcAmount1Delta(
+                    sqrtPriceCurrentX96,
+                    sqrtPriceNextX96,
+                    liquidity,
+                    true
+                );
+            }
+            // Recalculate fee
+            feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
+        }
 
         // Adjust amounts for fees
         if (exactInput) {
             amountIn += feeAmount;
         } else {
-            // For exact output, we need to ensure the input amount covers fees
             uint256 totalAmountIn = amountIn + feeAmount;
             if (totalAmountIn > absAmount) {
                 feeAmount = absAmount - amountIn;
