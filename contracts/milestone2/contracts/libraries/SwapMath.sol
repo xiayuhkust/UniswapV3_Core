@@ -26,16 +26,13 @@ library SwapMath {
     {
         bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
         bool exactInput = amountRemaining > 0;
+        uint256 absAmount = uint256(amountRemaining > 0 ? amountRemaining : -amountRemaining);
         
-        if (liquidity == 0) {
+        if (liquidity == 0 || absAmount == 0) {
             return (sqrtPriceTargetX96, 0, 0, 0);
         }
 
-        uint256 absAmount = uint256(amountRemaining > 0 ? amountRemaining : -amountRemaining);
-        if (absAmount == 0) {
-            return (sqrtPriceCurrentX96, 0, 0, 0);
-        }
-
+        // Calculate amount after fee
         uint256 amountRemainingLessFee = SimpleQ32Math.mulDiv(
             absAmount,
             1e6 - fee,
