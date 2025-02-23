@@ -20,8 +20,8 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
         owner = address(this);
 
         // Mint tokens to this contract
-        token0.mint(address(this), 1e18);
-        token1.mint(address(this), 1e18);
+        token0.mint(address(this), 10000000); // 10M tokens
+        token1.mint(address(this), 10000000); // 10M tokens
 
         // Deploy pool
         pool = new TestUniswapV3Pool(
@@ -46,7 +46,7 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
 
         // Perform swap
         bool zeroForOne = true;
-        int256 amountSpecified = -10; // Negative means exact input
+        int256 amountSpecified = -1000000; // 1M tokens for significant price impact
         uint160 sqrtPriceLimitX96 = TickMath.MIN_SQRT_RATIO + 1;
 
         (int256 amount0, int256 amount1) = pool.swap(
@@ -65,13 +65,13 @@ contract SwapTest is Test, IUniswapV3MintCallback, IUniswapV3SwapCallback {
         // Initialize pool with some liquidity
         int24 lowerTick = -60;
         int24 upperTick = 60;
-        uint128 liquidity = 1000000;
+        uint128 liquidity = 100000; // Reduced liquidity to prevent overflow
 
         pool.mint(owner, lowerTick, upperTick, liquidity, "");
 
         // Perform swap
         bool zeroForOne = false;
-        int256 amountSpecified = -10; // Smaller amount to prevent overflow
+        int256 amountSpecified = -1000; // Reduced amount to prevent overflow
         uint160 sqrtPriceLimitX96 = TickMath.MAX_SQRT_RATIO - 1;
 
         (int256 amount0, int256 amount1) = pool.swap(
